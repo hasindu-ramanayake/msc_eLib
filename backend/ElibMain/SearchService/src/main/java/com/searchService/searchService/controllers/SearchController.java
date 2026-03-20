@@ -1,7 +1,5 @@
 package com.searchService.searchService.controllers;
 
-
-import com.searchService.searchService.docs.CatalogType;
 import com.searchService.searchService.dto.CatalogDto;
 import com.searchService.searchService.service.CatalogSearchService;
 import lombok.AllArgsConstructor;

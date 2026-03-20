@@ -2,7 +2,6 @@ package com.searchService.searchService.service;
 
 import com.searchService.searchService.docs.Book;
 import com.searchService.searchService.docs.CatalogType;
-import com.searchService.searchService.dto.BookDto;
 import com.searchService.searchService.dto.CatalogDto;
 import com.searchService.searchService.dto.CatalogMapper;
 import com.searchService.searchService.repositories.CatalogRepository;
@@ -23,11 +22,21 @@ public class CatalogSearchService {
     }
 
     public List<CatalogDto> search(String keyword, String filter) {
-        return null;
+        List<Book> results;
+        if (filter != null && !filter.isEmpty()) {
+            CatalogType type = CatalogType.valueOf(filter.toUpperCase());
+            results = repo.findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCaseAndType(keyword, keyword, type);
+        } else {
+            results = repo.findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCase(keyword, keyword);
+        }
+        return results.stream()
+                .map(catalogMapper::toDto)
+                .map(CatalogDto.class::cast)
+                .toList();
     }
 
-//    public BookDto getById(String title) {
-//        Book book = // ... fetch book
-//        return catalogMapper.toDto(book);
-//    }
+    // public BookDto getById(String title) {
+    // Book book = // ... fetch book
+    // return catalogMapper.toDto(book);
+    // }
 }

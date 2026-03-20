@@ -1,0 +1,80 @@
+services:
+  # Infrastructure
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: elib
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d elib"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
+    environment:
+      - "discovery.type=single-node"
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  eureka-server:
+    build:
+      context: ./backend/ElibMain
+      dockerfile: ./DiscoveryServer/Dockerfile
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # Microservices
+  apigateway:
+    build:
+      context: ./backend/ElibMain
+      dockerfile: ./ApiGateway/Dockerfile
+    ports:
+      - "8765:8765"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/elib
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
+  search-service:
+    build:
+      context: ./backend/ElibMain
+      dockerfile: ./SearchService/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - apigateway
