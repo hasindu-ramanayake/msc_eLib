@@ -55,7 +55,24 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
-
+  notification-service:
+    build:
+      context: ./backend/ElibMain/NotificationService
+      dockerfile: ./Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      SERVER_PORT: 8082
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: admin123
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
   search-service:
     build:
       context: ./backend/ElibMain
