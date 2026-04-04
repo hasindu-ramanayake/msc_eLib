@@ -1,0 +1,7 @@
+com\example\apigateway\ApigatewayApplication.class
+com\example\apigateway\security\JwtAuthenticationFilter.class
+com\example\apigateway\controller\AggregationController.class
+com\example\apigateway\config\WebClientConfig.class
+com\example\apigateway\routes\UserServiceRoutes.class
+com\example\apigateway\security\JwtUtils.class
+com\example\apigateway\config\SecurityConfig.class
