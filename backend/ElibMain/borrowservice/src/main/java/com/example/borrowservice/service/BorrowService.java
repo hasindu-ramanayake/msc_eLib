@@ -2,6 +2,7 @@ package com.example.borrowservice.service;
 
 import com.example.borrowservice.dto.BorrowDto;
 import com.example.borrowservice.dto.NewBorrowDto;
+import com.example.borrowservice.entity.Borrow;
 import com.example.borrowservice.exception.ResourceNotFoundException;
 import com.example.borrowservice.mapper.BorrowMapper;
 import com.example.borrowservice.mapper.NewBorrowMapper;
@@ -9,7 +10,11 @@ import com.example.borrowservice.repository.BorrowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -37,10 +42,18 @@ public class BorrowService {
     }
 
     public BorrowDto createBorrow(NewBorrowDto newBorrowDto){
-        return borrowMapper.toDto(
-                borrowRepository.save(
-                        newBorrowMapper.toEntity(newBorrowDto)
-                )
-        );
+        Borrow borrow = newBorrowMapper.toEntity(newBorrowDto);
+
+        borrow.setCheckOutDate(Date.from(Instant.now()));
+
+        return borrowMapper.toDto(borrowRepository.save(borrow));
+    }
+
+    public List<BorrowDto> getBorrowByUserId(UUID id){
+        return borrowRepository
+                .findBorrowsByUserId(id)
+                .stream()
+                .map(borrowMapper::toDto)
+                .toList();
     }
 }

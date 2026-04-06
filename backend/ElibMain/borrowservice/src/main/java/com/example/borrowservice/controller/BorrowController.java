@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/borrow")
+@RequestMapping("/api/v1/borrows")
 public class BorrowController {
     private final BorrowService borrowService;
 
@@ -26,6 +26,11 @@ public class BorrowController {
     @GetMapping("/{id}")
     public ResponseEntity<BorrowDto> getBorrowById(@PathVariable UUID id){
         return ResponseEntity.ok(borrowService.getBorrowById(id));
+    }
+
+    @GetMapping("/users/{user_id}")
+    public ResponseEntity<List<BorrowDto>> getBorrowByUserId(@PathVariable UUID user_id){
+        return ResponseEntity.ok(borrowService.getBorrowByUserId(user_id));
     }
 
     @PostMapping

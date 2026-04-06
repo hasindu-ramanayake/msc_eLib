@@ -21,9 +21,6 @@ public class NewBorrowDto {
     private UUID itemId;
 
     @NotNull
-    private Date checkOutDate;
-
-    @NotNull
     @Future
     private Date dueDate;
 }
