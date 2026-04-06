@@ -1,5 +1,8 @@
-package com.example.borrowservice.exception;
+package com.example.borrowservice.config;
 
+import com.example.borrowservice.exception.ErrorResponse;
+import com.example.borrowservice.exception.NoContentException;
+import com.example.borrowservice.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
