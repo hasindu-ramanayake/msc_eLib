@@ -4,6 +4,7 @@ import com.example.borrowservice.dto.BorrowDto;
 import com.example.borrowservice.dto.NewBorrowDto;
 import com.example.borrowservice.exception.NoContentException;
 import com.example.borrowservice.service.BorrowService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class BorrowController {
     }
 
     @PostMapping
-    public ResponseEntity<BorrowDto> createBorrow(@RequestBody NewBorrowDto newBorrow) {
+    public ResponseEntity<BorrowDto> createBorrow(@Valid @RequestBody NewBorrowDto newBorrow) {
         return ResponseEntity.ok(borrowService.createBorrow(newBorrow));
     }
 }
