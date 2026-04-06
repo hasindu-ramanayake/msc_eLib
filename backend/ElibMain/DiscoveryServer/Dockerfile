@@ -4,10 +4,13 @@ WORKDIR /app
 
 # Copy parent pom
 COPY pom.xml .
-# Copy all submodules poms to satisfy dependency graph
+# Copy submodules poms to satisfy dependency graph
 COPY ApiGateway/pom.xml ApiGateway/
 COPY SearchService/pom.xml SearchService/
 COPY DiscoveryServer/pom.xml DiscoveryServer/
+COPY NotificationService/pom.xml NotificationService/
+COPY EventService/pom.xml EventService/
+COPY borrowservice/pom.xml borrowservice/
 
 # Build dependencies for DiscoveryServer
 RUN mvn -pl DiscoveryServer -am dependency:go-offline

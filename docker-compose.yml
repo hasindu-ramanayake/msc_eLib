@@ -57,8 +57,8 @@ services:
         condition: service_healthy
   notification-service:
     build:
-      context: ./backend/ElibMain/NotificationService
-      dockerfile: ./Dockerfile
+      context: ./backend/ElibMain
+      dockerfile: ./NotificationService/Dockerfile
     ports:
       - "8082:8082"
     environment:
@@ -71,6 +71,32 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
+  event-service:
+    build:
+      context: ./backend/ElibMain
+      dockerfile: ./EventService/Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      SERVER_PORT: 8083
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+
+  borrow-service:
+    build:
+      context: ./backend/ElibMain
+      dockerfile: ./borrowservice/Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      SERVER_PORT: 8084
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
       eureka-server:
         condition: service_healthy
   search-service:
