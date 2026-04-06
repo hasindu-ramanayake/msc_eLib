@@ -1,7 +1,0 @@
-C:\Users\jkfar\msc_eLib\backend\ElibMain\ApiGateway\src\main\java\com\example\apigateway\ApigatewayApplication.java
-C:\Users\jkfar\msc_eLib\backend\ElibMain\ApiGateway\src\main\java\com\example\apigateway\config\SecurityConfig.java
-C:\Users\jkfar\msc_eLib\backend\ElibMain\ApiGateway\src\main\java\com\example\apigateway\config\WebClientConfig.java
-C:\Users\jkfar\msc_eLib\backend\ElibMain\ApiGateway\src\main\java\com\example\apigateway\controller\AggregationController.java
-C:\Users\jkfar\msc_eLib\backend\ElibMain\ApiGateway\src\main\java\com\example\apigateway\routes\UserServiceRoutes.java
-C:\Users\jkfar\msc_eLib\backend\ElibMain\ApiGateway\src\main\java\com\example\apigateway\security\JwtAuthenticationFilter.java
-C:\Users\jkfar\msc_eLib\backend\ElibMain\ApiGateway\src\main\java\com\example\apigateway\security\JwtUtils.java
