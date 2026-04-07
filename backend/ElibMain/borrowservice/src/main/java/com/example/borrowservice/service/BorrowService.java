@@ -25,8 +25,8 @@ public class BorrowService {
     private final BorrowRepository borrowRepository;
     private final BorrowMapper borrowMapper;
     private final NewBorrowMapper newBorrowMapper;
-    private final ItemClient itemClient;
-    private final UserClient userClient;
+    private final ItemService itemService;
+    private final UserService userService;
 
     public List<BorrowDto> getAllBorrows() {
         return borrowRepository
@@ -48,9 +48,9 @@ public class BorrowService {
     public BorrowDto createBorrow(NewBorrowDto newBorrowDto){
         Borrow borrow = newBorrowMapper.toEntity(newBorrowDto);
 
-        var item = itemClient.getItemById(borrow.getItemId());
+        var item = itemService.getItemById(borrow.getItemId());
 
-        var user = userClient.getUserById(borrow.getUserId());
+        var user = userService.getUserById(borrow.getUserId());
 
         borrow.setCheckOutDate(Date.from(Instant.now()));
 
