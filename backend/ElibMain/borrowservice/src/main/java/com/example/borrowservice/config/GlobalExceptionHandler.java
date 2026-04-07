@@ -3,6 +3,7 @@ package com.example.borrowservice.config;
 import com.example.borrowservice.exception.ErrorResponse;
 import com.example.borrowservice.exception.NoContentException;
 import com.example.borrowservice.exception.ResourceNotFoundException;
+import feign.FeignException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,17 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
+//    @ExceptionHandler(FeignException.NotFound.class)
+//    public ResponseEntity<ErrorResponse> handleNotFound(FeignException exception){
+//        ErrorResponse error = new ErrorResponse(
+//                LocalDateTime.now(),
+//                HttpStatus.NOT_FOUND.value(),
+//                HttpStatus.NOT_FOUND.getReasonPhrase(),
+//                exception.getMessage()
+//        );
+//        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+//    }
 
     @ExceptionHandler(NoContentException.class)
     public ResponseEntity<ErrorResponse> handleNoContent(NoContentException exception){

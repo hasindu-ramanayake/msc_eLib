@@ -1,5 +1,7 @@
 package com.example.borrowservice.service;
 
+import com.example.borrowservice.client.ItemClient;
+import com.example.borrowservice.client.UserClient;
 import com.example.borrowservice.dto.BorrowDto;
 import com.example.borrowservice.dto.NewBorrowDto;
 import com.example.borrowservice.entity.Borrow;
@@ -23,6 +25,8 @@ public class BorrowService {
     private final BorrowRepository borrowRepository;
     private final BorrowMapper borrowMapper;
     private final NewBorrowMapper newBorrowMapper;
+    private final ItemClient itemClient;
+    private final UserClient userClient;
 
     public List<BorrowDto> getAllBorrows() {
         return borrowRepository
@@ -43,6 +47,10 @@ public class BorrowService {
 
     public BorrowDto createBorrow(NewBorrowDto newBorrowDto){
         Borrow borrow = newBorrowMapper.toEntity(newBorrowDto);
+
+        var item = itemClient.getItemById(borrow.getItemId());
+
+        var user = userClient.getUserById(borrow.getUserId());
 
         borrow.setCheckOutDate(Date.from(Instant.now()));
 
