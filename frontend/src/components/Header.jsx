@@ -30,7 +30,7 @@ const Header = () => {
           <a href="#" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
             My Books
           </a>
-          <div className="pl-4 ml-2 border-l border-gray-200">
+          <div className="pl-4 ml-2 border-l border-gray-200 flex items-center space-x-4">
             <NotificationBell />
             <button className="px-5 py-2 rounded-full text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
               Login
