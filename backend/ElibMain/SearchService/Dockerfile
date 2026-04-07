@@ -8,6 +8,9 @@ COPY pom.xml .
 COPY ApiGateway/pom.xml ApiGateway/
 COPY SearchService/pom.xml SearchService/
 COPY DiscoveryServer/pom.xml DiscoveryServer/
+COPY NotificationService/pom.xml NotificationService/
+COPY EventService/pom.xml EventService/
+COPY borrowservice/pom.xml borrowservice/
 
 # Build dependencies for SearchService
 RUN mvn -pl SearchService -am dependency:go-offline
