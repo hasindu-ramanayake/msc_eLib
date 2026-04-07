@@ -87,6 +87,19 @@ services:
       eureka-server:
         condition: service_healthy
 
+    item-service:
+      build:
+        context: ./backend/ElibMain
+        dockerfile: ./ItemService/Dockerfile
+      ports:
+        - "8072:8072"
+      environment:
+        SERVER_PORT: 8072
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      depends_on:
+        eureka-server:
+          condition: service_healthy
+
   borrow-service:
     build:
       context: ./backend/ElibMain

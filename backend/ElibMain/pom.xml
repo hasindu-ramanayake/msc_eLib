@@ -21,12 +21,13 @@
   </properties>
 
   <modules>
-    <module>SearchService</module>
-    <module>ApiGateway</module>
-    <module>DiscoveryServer</module>
-    <module>NotificationService</module>
-    <module>EventService</module>
-    <module>borrowservice</module>
+      <module>SearchService</module>
+      <module>ApiGateway</module>
+      <module>DiscoveryServer</module>
+      <module>NotificationService</module>
+      <module>EventService</module>
+      <module>borrowservice</module>
+      <module>ItemService</module>
   </modules>
 
   <dependencies>

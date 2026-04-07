@@ -14,17 +14,17 @@ COPY borrowservice/pom.xml borrowservice/
 COPY ItemService/pom.xml ItemService/
 
 # Build dependencies for EventService
-RUN mvn -pl EventService -am dependency:go-offline
+RUN mvn -pl ItemService -am dependency:go-offline
 
 # Copy EventService source
-COPY EventService/src EventService/src
+COPY ItemService/src ItemService/src
 
 # Build EventService
-RUN mvn -pl EventService -DskipTests clean package
+RUN mvn -pl ItemService -DskipTests clean package
 
 # Run stage
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/EventService/target/*.jar app.jar
+COPY --from=build /app/ItemService/target/*.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
