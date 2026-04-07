@@ -13,19 +13,19 @@ COPY NotificationService/pom.xml NotificationService/
 COPY EventService/pom.xml EventService/
 COPY borrowservice/pom.xml borrowservice/
 
-# Build dependencies for ApiGateway
-RUN mvn install -N && mvn -pl ApiGateway -am dependency:go-offline
+# Build dependencies for user-service
+RUN mvn install -N && cd user-service && mvn dependency:go-offline
 
-# Copy ApiGateway source
-COPY ApiGateway/src ApiGateway/src
+# Copy user-service source
+COPY user-service/src user-service/src
 
-# Build ApiGateway
-RUN mvn -pl ApiGateway -DskipTests clean package
+# Build user-service
+RUN cd user-service && mvn -DskipTests clean package
 
 # Run stage
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/ApiGateway/target/*.jar app.jar
+COPY --from=build /app/user-service/target/*.jar app.jar
 
-EXPOSE 8765
+EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]
