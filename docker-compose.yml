@@ -9,7 +9,7 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d elib"]
+      test: [ "CMD-SHELL", "pg_isready -U user -d elib" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -21,7 +21,7 @@ services:
     ports:
       - "9200:9200"
     healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
+      test: [ "CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1" ]
       interval: 15s
       timeout: 10s
       retries: 5
@@ -33,7 +33,7 @@ services:
     ports:
       - "8761:8761"
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1"]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1" ]
       interval: 15s
       timeout: 10s
       retries: 5
@@ -57,8 +57,8 @@ services:
         condition: service_healthy
   notification-service:
     build:
-      context: ./backend/ElibMain/NotificationService
-      dockerfile: ./Dockerfile
+      context: ./backend/ElibMain
+      dockerfile: ./NotificationService/Dockerfile
     ports:
       - "8082:8082"
     environment:
@@ -71,6 +71,45 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
+  event-service:
+    build:
+      context: ./backend/ElibMain
+      dockerfile: ./EventService/Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      SERVER_PORT: 8083
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+
+  item-service:
+    build:
+      context: ./backend/ElibMain
+      dockerfile: ./ItemService/Dockerfile
+    ports:
+      - "8072:8072"
+    environment:
+      SERVER_PORT: 8072
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+
+  borrow-service:
+    build:
+      context: ./backend/ElibMain
+      dockerfile: ./borrowservice/Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      SERVER_PORT: 8084
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
       eureka-server:
         condition: service_healthy
   search-service:
