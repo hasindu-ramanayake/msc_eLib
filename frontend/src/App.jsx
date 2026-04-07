@@ -6,6 +6,7 @@ import SearchBar from './components/SearchBar';
 import UpcomingEvents from './components/UpcomingEvents';
 import Footer from './components/Footer';
 import SearchResults from './components/SearchResults';
+import NotificationsPage from './pages/NotificationsPage';
 
 // Extracted the old App landing page contents into its own component
 const Home = () => {
@@ -41,8 +42,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/search" element={<SearchResults />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/search" element={<SearchResults />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
       </Routes>
     </Router>
   );
