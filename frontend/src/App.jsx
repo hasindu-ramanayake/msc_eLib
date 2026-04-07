@@ -49,7 +49,6 @@ function App() {
           <Route path="/search" element={<SearchResults />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-
         </Routes>
       </Router>
     </AuthProvider>

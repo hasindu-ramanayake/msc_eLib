@@ -1,5 +1,5 @@
 package com.elib.user.dto;
-
+//Backend to frontend
 public record AuthResponseDTO(
     String token,
     String refreshToken,
