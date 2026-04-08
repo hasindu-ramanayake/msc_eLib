@@ -6,6 +6,7 @@
         <groupId>com.elib</groupId>
         <artifactId>ElibMain</artifactId>
         <version>1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>user-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -94,6 +95,15 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <!-- Resilience4j & Monitoring -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
     </dependencies>
 

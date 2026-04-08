@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 import java.util.UUID;
@@ -53,6 +55,7 @@ public class UserServiceImp implements UserService {
 
     @Transactional
     // Ensures atomicity: all database operations must succeed, or the transaction rolls back
+    @CircuitBreaker(name = "userService", fallbackMethod = "registerFallback")
     public UserDTO register(UserRegistrationDTO dto) {
         log.info("Attempting to register user with email: {}", dto.email());
         
@@ -82,6 +85,17 @@ public class UserServiceImp implements UserService {
             log.error("Unexpected error during registration for {}: {}", dto.email(), e.getMessage());
             throw e;
         }
+    }
+
+    // Fallback method for the circuit breaker
+    public UserDTO registerFallback(UserRegistrationDTO dto, Throwable t) {
+        log.error("Circuit breaker 'userService' triggered during registration for: {}. Error: {}", dto.email(), t.getMessage());
+        // For a critical operation like registration, we might return a custom error or throw a specific exception
+        // that the frontend can handle appropriately.
+        if (t instanceof UserAlreadyExistsException) {
+            throw (UserAlreadyExistsException) t;
+        }
+        throw new RuntimeException("User registration is temporarily unavailable due to system load or dependency failure. Please try again later.", t);
     }
 
     public AuthResponseDTO login(AuthRequestDTO authRequest) {
