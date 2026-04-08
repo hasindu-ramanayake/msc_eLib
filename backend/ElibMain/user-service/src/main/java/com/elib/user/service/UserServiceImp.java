@@ -45,6 +45,12 @@ public class UserServiceImp implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
     }
 
+    public UserDTO getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(userMapper::toUserDTO)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+    }
+
     @Transactional
     // Ensures atomicity: all database operations must succeed, or the transaction rolls back
     public UserDTO register(UserRegistrationDTO dto) {

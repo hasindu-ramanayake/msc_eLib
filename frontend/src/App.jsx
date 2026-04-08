@@ -9,6 +9,8 @@ import SearchResults from './components/SearchResults';
 import { AuthProvider } from './context/AuthContext';
 import Login from './components/Login';
 import Register from './components/Register';
+import OAuth2RedirectHandler from './components/OAuth2RedirectHandler';
+import EditProfile from './components/EditProfile';
 
 // Extracted the old App landing page contents into its own component
 const Home = () => {
@@ -49,6 +51,8 @@ function App() {
           <Route path="/search" element={<SearchResults />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
+          <Route path="/edit-profile" element={<EditProfile />} />
         </Routes>
       </Router>
     </AuthProvider>

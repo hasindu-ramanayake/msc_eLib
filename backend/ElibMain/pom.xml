@@ -28,6 +28,7 @@
     <module>EventService</module>
     <module>borrowservice</module>
     <module>user-service</module>
+    <module>ItemService</module>
   </modules>
 
   <dependencies>
@@ -36,11 +37,6 @@
       <artifactId>testcontainers-junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
-      <dependency>
-          <groupId>org.postgresql</groupId>
-          <artifactId>postgresql</artifactId>
-          <scope>runtime</scope>
-      </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>

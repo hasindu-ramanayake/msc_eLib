@@ -43,29 +43,37 @@ const Header = () => {
 
           <div className="pl-4 ml-2 border-l border-gray-200 relative">
             {user ? (
-               <div className="relative">
-                 <button 
-                   onClick={() => setShowDropdown(!showDropdown)}
-                   className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-blue-600 focus:outline-none transition-colors"
-                 >
-                   <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold shadow-sm">
-                     {user.firstName ? user.firstName[0] : ''}
-                   </div>
-                   <span>Hello {user.firstName} {user.lastName}</span>
-                   <svg className={`w-4 h-4 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                 </button>
-                 
-                 {showDropdown && (
-                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-100 z-50">
-                     <button
-                       onClick={handleLogout}
-                       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                     >
-                       Sign out
-                     </button>
-                   </div>
-                 )}
-               </div>
+              <div className="relative">
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-blue-600 focus:outline-none transition-colors"
+                >
+                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold shadow-sm">
+                    {user.firstName ? user.firstName[0] : ''}
+                  </div>
+                  <span>Hello {user.firstName} {user.lastName}</span>
+                  <svg className={`w-4 h-4 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+
+                {showDropdown && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-100 z-50">
+                    <Link
+                      to="/edit-profile"
+                      onClick={() => setShowDropdown(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                    >
+                      Edit Profile
+                    </Link>
+                    <hr className="my-1 border-gray-100" />
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <Link to="/login" className="px-5 py-2 rounded-full text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                 Login

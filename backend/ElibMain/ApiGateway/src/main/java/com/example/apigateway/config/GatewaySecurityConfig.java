@@ -42,6 +42,8 @@ public class GatewaySecurityConfig {
                         .requestMatchers("/api/v1/users/register").permitAll()
                         .requestMatchers("/api/v1/users/login").permitAll()
                         .requestMatchers("/api/v1/users/test").permitAll()
+                        .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers("/login/oauth2/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/eureka/**").permitAll()
                         

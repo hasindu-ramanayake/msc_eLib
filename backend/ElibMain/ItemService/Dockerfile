@@ -4,29 +4,28 @@ WORKDIR /app
 
 # Copy parent pom
 COPY pom.xml .
-# Copy submodules poms
+# Copy ALL submodules poms to satisfy dependency graph
 COPY ApiGateway/pom.xml ApiGateway/
 COPY SearchService/pom.xml SearchService/
 COPY DiscoveryServer/pom.xml DiscoveryServer/
-COPY user-service/pom.xml user-service/
 COPY NotificationService/pom.xml NotificationService/
 COPY EventService/pom.xml EventService/
 COPY borrowservice/pom.xml borrowservice/
+COPY user-service/pom.xml user-service/
 COPY ItemService/pom.xml ItemService/
 
-# Build dependencies for ApiGateway
-RUN mvn install -N && mvn -pl ApiGateway -am dependency:go-offline
+# Build dependencies for EventService
+RUN mvn -pl ItemService -am dependency:go-offline
 
-# Copy ApiGateway source
-COPY ApiGateway/src ApiGateway/src
+# Copy EventService source
+COPY ItemService/src ItemService/src
 
-# Build ApiGateway
-RUN mvn -pl ApiGateway -DskipTests clean package
+# Build EventService
+RUN mvn -pl ItemService -DskipTests clean package
 
 # Run stage
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/ApiGateway/target/*.jar app.jar
+COPY --from=build /app/ItemService/target/*.jar app.jar
 
-EXPOSE 8765
 ENTRYPOINT ["java", "-jar", "app.jar"]

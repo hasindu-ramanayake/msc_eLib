@@ -1,10 +1,10 @@
 package com.elib.user.dto;
-
+ 
 import com.elib.user.entity.Role;
 import com.elib.user.entity.NotificationPreference;
 import java.util.UUID;
 import java.util.Set;
-
+ 
 public record UserDTO(
     UUID id,
     String firstName,

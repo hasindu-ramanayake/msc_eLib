@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,9 +29,9 @@ public class UserController {
         String token = request.getToken();
         String email = jwtUtil.extractEmail(token);
         String role = jwtUtil.extractRole(token);
-        
+
         log.debug("Parsing JWT for email: {}, role: {}", email, role);
-        
+
         return ResponseEntity.ok(JwtParseResponseDto.builder()
                 .email(email)
                 .role(role)
@@ -59,9 +58,26 @@ public class UserController {
         return ResponseEntity.ok(userService.login(authRequest));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable UUID id, @RequestBody UserUpdateDTO userUpdateDTO) {
-        return ResponseEntity.ok(userService.updateUser(id, userUpdateDTO));
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO> getCurrentUser(@RequestHeader("Authorization") String token) {
+        String bareToken = token.substring(7); // Remove "Bearer "
+        String email = jwtUtil.extractEmail(bareToken);
+        log.info("Fetching profile for user: {}", email);
+        return ResponseEntity.ok(userService.getUserByEmail(email));
+    }
+
+    @PutMapping("/edit-profile")
+    public ResponseEntity<UserDTO> updateProfile(
+            @RequestHeader("Authorization") String token,
+            @RequestBody UserUpdateDTO userUpdateDTO) {
+        String bareToken = token.substring(7);
+        String email = jwtUtil.extractEmail(bareToken);
+        
+        // Find user by email first to get the ID
+        UserDTO currentUser = userService.getUserByEmail(email);
+        log.info("Updating profile for user: {}", email);
+        
+        return ResponseEntity.ok(userService.updateUser(currentUser.id(), userUpdateDTO));
     }
 
     @DeleteMapping("/{id}")

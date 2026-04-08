@@ -12,6 +12,7 @@ COPY user-service/pom.xml user-service/
 COPY NotificationService/pom.xml NotificationService/
 COPY EventService/pom.xml EventService/
 COPY borrowservice/pom.xml borrowservice/
+COPY ItemService/pom.xml ItemService/
 
 # Build dependencies for user-service
 RUN mvn install -N && cd user-service && mvn dependency:go-offline

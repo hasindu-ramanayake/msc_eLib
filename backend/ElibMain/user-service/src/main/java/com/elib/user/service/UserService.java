@@ -19,6 +19,9 @@ public interface UserService {
     // Finds a specific user by their unique identifier
     UserDTO getUserById(UUID id);
 
+    // Finds a specific user by their email address (useful for profile retrieval)
+    UserDTO getUserByEmail(String email);
+
     // Processes a new user registration, including password encryption and default role assignment
     UserDTO register(UserRegistrationDTO dto);
 
