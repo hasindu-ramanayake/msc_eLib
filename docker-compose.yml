@@ -9,7 +9,23 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U user -d elib" ]
+      test: ["CMD-SHELL", "pg_isready -U user -d elib"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  user_db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d user_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -21,7 +37,7 @@ services:
     ports:
       - "9200:9200"
     healthcheck:
-      test: [ "CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1" ]
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
       interval: 15s
       timeout: 10s
       retries: 5
@@ -33,12 +49,29 @@ services:
     ports:
       - "8761:8761"
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1"]
       interval: 15s
       timeout: 10s
       retries: 5
 
   # Microservices
+  user-service:
+    build:
+      context: ./backend/ElibMain
+      dockerfile: ./user-service/Dockerfile
+    ports:
+      - "8081:8081"
+    env_file: ./backend/ElibMain/user-service/.env
+    environment:
+      SERVER_PORT: 8081
+      SPRING_DATASOURCE_URL: jdbc:postgresql://user_db:5432/user_db
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      user_db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
   apigateway:
     build:
       context: ./backend/ElibMain
@@ -148,3 +181,7 @@ services:
       - "5173:80"
     depends_on:
       - apigateway
+
+volumes:
+  postgres_data:
+  user_db_data:
