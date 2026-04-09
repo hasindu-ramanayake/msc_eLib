@@ -1,7 +1,5 @@
 package com.example.borrowservice.service;
 
-import com.example.borrowservice.client.ItemClient;
-import com.example.borrowservice.client.UserClient;
 import com.example.borrowservice.dto.BorrowDto;
 import com.example.borrowservice.dto.NewBorrowDto;
 import com.example.borrowservice.entity.Borrow;
@@ -13,10 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -60,6 +56,22 @@ public class BorrowService {
     public List<BorrowDto> getBorrowByUserId(UUID id){
         return borrowRepository
                 .findBorrowsByUserId(id)
+                .stream()
+                .map(borrowMapper::toDto)
+                .toList();
+    }
+
+    public List<BorrowDto> getOverDueBorrow(UUID userId){
+        return borrowRepository
+                .getOverDueBorrows(userId)
+                .stream()
+                .map(borrowMapper::toDto)
+                .toList();
+    }
+
+    public List<BorrowDto> getUnderDueBorrow(UUID userId){
+        return borrowRepository
+                .getUnderDueBorrows(userId)
                 .stream()
                 .map(borrowMapper::toDto)
                 .toList();
