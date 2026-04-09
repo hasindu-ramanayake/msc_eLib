@@ -38,7 +38,7 @@ public class GatewaySecurityConfig {
                                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")))
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints that do not require authentication
+                        // Public endpoints
                         .requestMatchers("/api/v1/users/register").permitAll()
                         .requestMatchers("/api/v1/users/login").permitAll()
                         .requestMatchers("/api/v1/users/test").permitAll()
@@ -46,9 +46,13 @@ public class GatewaySecurityConfig {
                         .requestMatchers("/login/oauth2/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/eureka/**").permitAll()
+
+                        // Admin Only endpoints
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/users").hasRole("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/v1/users/**").hasRole("ADMIN")
                         
-                        // All other requests require the user to have the CUSTOMER role
-                        .anyRequest().hasRole("CUSTOMER")
+                        // All other authenticated requests
+                        .anyRequest().hasAnyRole("CUSTOMER", "ADMIN")
                 );
 
         return http.build();

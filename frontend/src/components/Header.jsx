@@ -64,6 +64,16 @@ const Header = () => {
                     >
                       Edit Profile
                     </Link>
+
+                    {user.role === 'ADMIN' && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setShowDropdown(false)}
+                        className="block px-4 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-50 transition-colors"
+                      >
+                        Admin Dashboard
+                      </Link>
+                    )}
                     <hr className="my-1 border-gray-100" />
                     <button
                       onClick={handleLogout}
