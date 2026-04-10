@@ -6,7 +6,6 @@ import SearchBar from './components/SearchBar';
 import UpcomingEvents from './components/UpcomingEvents';
 import Footer from './components/Footer';
 import SearchResults from './components/SearchResults';
-<<<<<<< main
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -14,6 +13,7 @@ import OAuth2RedirectHandler from './components/OAuth2RedirectHandler';
 import EditProfile from './components/EditProfile';
 import AdminPage from './components/AdminPage';
 import { Navigate } from 'react-router-dom';
+import NotificationsPage from './pages/NotificationsPage';
 
 /**
  * AdminProtectedRoute Component
@@ -31,9 +31,6 @@ const AdminProtectedRoute = ({ children }) => {
 
     return children;
 };
-=======
-import NotificationsPage from './pages/NotificationsPage';
->>>>>>> NotificationService
 
 // Extracted the old App landing page contents into its own component
 const Home = () => {
@@ -66,7 +63,6 @@ const Home = () => {
 
 // Main App now handles the Router wrapping
 function App() {
-<<<<<<< main
     return (
         <AuthProvider>
             <Router>
@@ -77,6 +73,7 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
                     <Route path="/edit-profile" element={<EditProfile />} />
+                    <Route path="/notifications" element={<NotificationsPage />} />
                     <Route
                         path="/admin"
                         element={
@@ -89,17 +86,6 @@ function App() {
             </Router>
         </AuthProvider>
     );
-=======
-  return (
-    <Router>
-      <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/search" element={<SearchResults />} />
-          <Route path="/notifications" element={<NotificationsPage />} />
-      </Routes>
-    </Router>
-  );
->>>>>>> NotificationService
 }
 
 export default App;
