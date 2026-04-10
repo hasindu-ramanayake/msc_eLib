@@ -32,7 +32,8 @@ const AdminPage = () => {
         console.log('[AdminPage] Fetching users...');
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:8765/api/v1/users', {
+            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+            const response = await fetch(`${baseUrl}/api/v1/users`, {
                 headers: {
                     'Authorization': `Bearer ${user.token}`
                 }
@@ -74,7 +75,8 @@ const AdminPage = () => {
 
         setDeleteLoading(userId);
         try {
-            const response = await fetch(`http://localhost:8765/api/v1/users/${userId}`, {
+            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+            const response = await fetch(`${baseUrl}/api/v1/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${user.token}`

@@ -41,34 +41,34 @@ const UpcomingEvents = () => {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-800 tracking-tight">Upcoming Events</h2>
         <a href="#" className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
-          View full calendar &rarr;
+          View LibraryInfo &rarr;
         </a>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {events.map((event) => (
-          <div 
-            key={event.id} 
+          <div
+            key={event.id}
             className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden flex flex-col h-full group"
           >
             {/* Top accent line */}
             <div className={`h-1.5 w-full ${event.color.split(' ')[0]}`}></div>
-            
+
             <div className="p-6 flex flex-col flex-grow">
               <div className="flex justify-between items-start mb-4">
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${event.color}`}>
                   {event.category}
                 </span>
               </div>
-              
+
               <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
                 {event.title}
               </h3>
-              
+
               <p className="text-gray-600 text-sm mb-6 flex-grow line-clamp-3">
                 {event.description}
               </p>
-              
+
               <div className="space-y-2 mt-auto pt-4 border-t border-gray-100">
                 <div className="flex items-center text-sm text-gray-500">
                   <CalendarIcon className="h-4 w-4 mr-2.5 text-gray-400" />
@@ -83,12 +83,6 @@ const UpcomingEvents = () => {
                   {event.location}
                 </div>
               </div>
-            </div>
-            
-            <div className="px-6 py-3 bg-gray-50 border-t border-gray-100 mt-auto">
-              <button className="w-full text-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
-                RSVP Now
-              </button>
             </div>
           </div>
         ))}

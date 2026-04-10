@@ -72,7 +72,8 @@ const Register = () => {
       };
 
       // Call the API Gateway which routes to User Service
-      const response = await fetch('http://localhost:8765/api/v1/users/register', {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+      const response = await fetch(`${baseUrl}/api/v1/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -111,7 +112,10 @@ const Register = () => {
             <div className="mb-6">
               <button
                 type="button"
-                onClick={() => window.location.href = 'http://localhost:8765/oauth2/authorization/google'}
+                onClick={() => {
+                  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+                  window.location.href = `${baseUrl}/oauth2/authorization/google`;
+                }}
                 className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -154,7 +158,7 @@ const Register = () => {
 
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-gray-900">Personal Information</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">First Name</label>
                     <div className="mt-1">
@@ -228,7 +232,7 @@ const Register = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Eircode</label>
                       <div className="mt-1">

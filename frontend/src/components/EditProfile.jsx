@@ -32,7 +32,8 @@ const EditProfile = () => {
             if (!user?.token) return;
 
             try {
-                const response = await fetch('http://localhost:8765/api/v1/users/me', {
+                const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+                const response = await fetch(`${baseUrl}/api/v1/users/me`, {
                     headers: {
                         'Authorization': `Bearer ${user.token}`
                     }
@@ -86,7 +87,8 @@ const EditProfile = () => {
         setMessage({ type: '', text: '' });
 
         try {
-            const response = await fetch('http://localhost:8765/api/v1/users/edit-profile', {
+            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+            const response = await fetch(`${baseUrl}/api/v1/users/edit-profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
