@@ -17,4 +17,8 @@ public class UserService {
     public ResponseEntity<?> getUserById(UUID id){
         return userClient.getUserById(id);
     }
+
+    public ResponseEntity<?> fallback(UUID id, Throwable throwable) throws Throwable {
+        throw throwable;
+    }
 }
