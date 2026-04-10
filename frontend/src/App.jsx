@@ -37,8 +37,8 @@ const Home = () => {
         <div className="bg-white min-h-screen w-full flex flex-col items-center pt-24">
             <Header />
 
-            {/* Main Content Container - Takes 2/3 of the screen width */}
-            <div className="w-2/3 max-w-none mt-8 flex flex-col flex-grow">
+            {/* Main Content Container - Flexibly spans whole screen on mobile */}
+            <div className="w-11/12 sm:w-5/6 md:w-2/3 lg:max-w-4xl mt-8 flex flex-col flex-grow">
                 <div className="text-center space-y-4 mb-10">
                     <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-600 tracking-tight">
                         E-Library

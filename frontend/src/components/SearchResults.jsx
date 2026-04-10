@@ -18,8 +18,9 @@ const SearchResults = () => {
       setLoading(true);
       try {
         const keyword = query || '';
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
         // Base backend URL for SearchService via ApiGateway
-        let url = `http://localhost:8765/api/v1/search?keyword=${encodeURIComponent(keyword)}`;
+        let url = `${baseUrl}/api/v1/search?keyword=${encodeURIComponent(keyword)}`;
         
         const formats = searchParams.getAll('format');
         const genres = searchParams.getAll('genre');

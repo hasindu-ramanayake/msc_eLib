@@ -19,7 +19,8 @@ const Login = () => {
 
     try {
       // Send login request to the API Gateway
-      const response = await fetch('http://localhost:8765/api/v1/users/login', {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+      const response = await fetch(`${baseUrl}/api/v1/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -122,7 +123,10 @@ const Login = () => {
                   <div className="mt-6">
                     <button
                         type="button"
-                        onClick={() => window.location.href = 'http://localhost:8765/oauth2/authorization/google'}
+                        onClick={() => {
+                          const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+                          window.location.href = `${baseUrl}/oauth2/authorization/google`;
+                        }}
                         className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
                     >
                       <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
