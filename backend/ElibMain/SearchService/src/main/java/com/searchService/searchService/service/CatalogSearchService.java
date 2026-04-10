@@ -6,6 +6,10 @@ import com.searchService.searchService.dto.CatalogDto;
 import com.searchService.searchService.dto.CatalogMapper;
 import com.searchService.searchService.repositories.CatalogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,14 +26,28 @@ public class CatalogSearchService {
     }
 
     public List<CatalogDto> search(String keyword, String filter) {
-        List<Book> results;
-        if (filter != null && !filter.isEmpty()) {
-            CatalogType type = CatalogType.valueOf(filter.toUpperCase());
-            results = repo.findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCaseAndType(keyword, keyword, type);
+        Page<Book> results;
+        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+        
+        if (!hasKeyword) {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "published_year.keyword"));
+            if (filter != null && !filter.isEmpty()) {
+                CatalogType type = CatalogType.valueOf(filter.toUpperCase());
+                results = repo.findByType(type, pageable);
+            } else {
+                results = (Page<Book>) repo.findAll(pageable);
+            }
         } else {
-            results = repo.findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCase(keyword, keyword);
+            Pageable pageable = PageRequest.of(0, 10);
+            if (filter != null && !filter.isEmpty()) {
+                CatalogType type = CatalogType.valueOf(filter.toUpperCase());
+                results = repo.findByTitleContainingIgnoreCaseOrAuthorsContainingIgnoreCaseAndType(keyword, keyword, type, pageable);
+            } else {
+                results = repo.findByTitleContainingIgnoreCaseOrAuthorsContainingIgnoreCase(keyword, keyword, pageable);
+            }
         }
-        return results.stream()
+        
+        return results.getContent().stream()
                 .map(catalogMapper::toDto)
                 .map(CatalogDto.class::cast)
                 .toList();

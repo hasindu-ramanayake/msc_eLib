@@ -8,8 +8,14 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class BookDto extends CatalogDto {
     private String title;
-    private String author;
-    private String isbn;
+    private String subtitle;
+    private String authors;
+    private String isbn13;
+    private String isbn10;
+    private String categories;
+    private String thumbnail;
+    private String description;
+    private String published_year;
 
     public BookDto() {
         // Automatically set the enum type
