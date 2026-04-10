@@ -22,25 +22,26 @@ const timeAgo = (dateStr) => {
     return `${Math.floor(diff / 86400)}d ago`;
 };
 
-const markAsRead = async () => {
-    try {
-        await fetch(`${API_BASE}/api/v1/notifications/users/${MOCK_USER_ID}/read-all`, {
-            method: 'PATCH',
-        });
-        setNotifications(prev =>
-            prev.map(n => ({ ...n, status: 'READ' }))
-        );
-    } catch {
-        // silently fail
-    }
-};
-
 const NotificationBell = () => {
     const [notifications, setNotifications] = useState([]);
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
+
+    const markAsRead = async () => {
+        try {
+            await fetch(`${API_BASE}/api/v1/notifications/users/${MOCK_USER_ID}/read-all`, {
+                method: 'PATCH',
+            });
+            setNotifications(prev =>
+                prev.map(n => ({ ...n, status: 'READ' }))
+            );
+        } catch {
+            // silently fail
+        }
+    };
+
 
     const unreadCount = notifications.filter(n => n.status === 'SENT').length;
 
@@ -77,7 +78,10 @@ const NotificationBell = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleViewAll = () => {
+    const handleViewAll = async () => {
+        if (unreadCount > 0) {
+            await markAsRead();
+        }
         setOpen(false);
         navigate('/notifications');
     };
