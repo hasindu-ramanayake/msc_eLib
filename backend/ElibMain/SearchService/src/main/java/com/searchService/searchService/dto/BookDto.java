@@ -16,6 +16,8 @@ public class BookDto extends CatalogDto {
     private String thumbnail;
     private String description;
     private String published_year;
+    private String language;
+    private String age;
 
     public BookDto() {
         // Automatically set the enum type

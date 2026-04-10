@@ -24,6 +24,8 @@ public class Book implements Catalog{
     private String thumbnail;
     private String description;
     private String published_year;
+    private String language;
+    private String age;
     private CatalogType type;
 
 

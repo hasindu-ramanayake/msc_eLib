@@ -21,10 +21,16 @@ const SearchResults = () => {
         // Base backend URL for SearchService via ApiGateway
         let url = `http://localhost:8765/api/v1/search?keyword=${encodeURIComponent(keyword)}`;
         
-        // Pass filter if format holds a single type for simplicity now
         const formats = searchParams.getAll('format');
-        if (formats.length > 0) {
-           url += `&filter=${encodeURIComponent(formats[0].toUpperCase())}`;
+        const genres = searchParams.getAll('genre');
+        const ages = searchParams.getAll('age');
+        const language = searchParams.get('language') || '';
+
+        formats.forEach(f => url += `&formats=${encodeURIComponent(f)}`);
+        genres.forEach(g => url += `&genres=${encodeURIComponent(g)}`);
+        ages.forEach(a => url += `&ages=${encodeURIComponent(a)}`);
+        if (language && language !== 'multi') {
+          url += `&language=${encodeURIComponent(language)}`;
         }
         
         console.log('--- Fetching real search results ---', url);

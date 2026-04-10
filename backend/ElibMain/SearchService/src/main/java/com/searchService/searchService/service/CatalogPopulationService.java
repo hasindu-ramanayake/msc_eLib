@@ -31,7 +31,7 @@ public class CatalogPopulationService {
             List<Book> books = new ArrayList<>();
 
             for (String[] row : rows) {
-                if (row.length >= 9) {
+                if (row.length >= 14) {
                     Book book = new Book();
                     book.setIsbn13(row[0]);
                     book.setIsbn10(row[1]);
@@ -42,6 +42,8 @@ public class CatalogPopulationService {
                     book.setThumbnail(row[6]);
                     book.setDescription(row[7]);
                     book.setPublished_year(row[8]);
+                    book.setLanguage(row[12]);
+                    book.setAge(row[13]);
                     book.setType(CatalogType.BOOK);
                     books.add(book);
                 }

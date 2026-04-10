@@ -21,11 +21,13 @@ public class SearchController {
 
     @GetMapping
     public ResponseEntity<List<CatalogDto>> catalogSearch(
-            // http://localhost:8080/api/v1/search?keyword=Dune&filter=BOOK
-            @RequestParam() String keyword,
-            @RequestParam(required = false) String filter) {
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) List<String> formats,
+            @RequestParam(required = false) List<String> genres,
+            @RequestParam(required = false) List<String> ages,
+            @RequestParam(required = false) String language) {
 
-        List<CatalogDto> results = catSearch.search(keyword, filter);
+        List<CatalogDto> results = catSearch.search(keyword, formats, genres, ages, language);
 
         // HTTP 200 OK with the results
         return ResponseEntity.ok(results);
