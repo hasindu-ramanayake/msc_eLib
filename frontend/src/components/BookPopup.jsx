@@ -48,7 +48,7 @@ const BookPopup = ({ book, closePopup }) => {
 
           {/* Categories */}
           <p className="text-sm text-gray-500 mb-1 italic">
-            {book.genre || "Unknown genre"}
+            {book.categories || "Unknown genre"}
           </p>
 
           {/* Availability */}
