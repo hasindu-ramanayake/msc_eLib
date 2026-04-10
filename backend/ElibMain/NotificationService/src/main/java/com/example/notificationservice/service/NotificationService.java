@@ -94,4 +94,9 @@ public class NotificationService {
         notification.setDeliveredAt(result.isSuccess() ? new Date() : null);
         notificationRepository.save(notification);
     }
+
+    @Transactional
+    public void markAllAsRead(UUID userId) {
+        notificationRepository.markAllAsReadForUser(userId);
+    }
 }

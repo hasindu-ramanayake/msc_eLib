@@ -2,6 +2,7 @@ package com.searchService.searchService.controllers;
 
 import com.searchService.searchService.dto.CatalogDto;
 import com.searchService.searchService.service.CatalogSearchService;
+import com.searchService.searchService.service.CatalogPopulationService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,16 +17,25 @@ import java.util.List;
 @RequestMapping("/api/v1/search")
 public class SearchController {
     private CatalogSearchService catSearch;
+    private CatalogPopulationService catPopulate;
 
     @GetMapping
     public ResponseEntity<List<CatalogDto>> catalogSearch(
-            // http://localhost:8080/api/v1/search?keyword=Dune&filter=BOOK
-            @RequestParam() String keyword,
-            @RequestParam(required = false) String filter) {
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) List<String> formats,
+            @RequestParam(required = false) List<String> genres,
+            @RequestParam(required = false) List<String> ages,
+            @RequestParam(required = false) String language) {
 
-        List<CatalogDto> results = catSearch.search(keyword, filter);
+        List<CatalogDto> results = catSearch.search(keyword, formats, genres, ages, language);
 
         // HTTP 200 OK with the results
         return ResponseEntity.ok(results);
+    }
+
+    @GetMapping("/populate")
+    public ResponseEntity<String> populate() {
+        catPopulate.populateFromCsv();
+        return ResponseEntity.ok("Population completed");
     }
 }
