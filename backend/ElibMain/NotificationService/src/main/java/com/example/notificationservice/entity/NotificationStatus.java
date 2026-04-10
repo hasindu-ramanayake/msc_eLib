@@ -1,5 +1,5 @@
 package com.example.notificationservice.entity;
 
 public enum NotificationStatus {
-    PENDING, SENT, FAILED
+    PENDING, SENT, FAILED, READ
 }

@@ -41,4 +41,11 @@ public class NotificationController {
         notificationService.handleEvent(event);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
+
+    // PATCH /api/v1/notifications/users/{userId}/read-all
+    @PatchMapping("/users/{userId}/read-all")
+    public ResponseEntity<Void> markAllAsRead(@PathVariable UUID userId) {
+        notificationService.markAllAsRead(userId);
+        return ResponseEntity.noContent().build();
+    }
 }

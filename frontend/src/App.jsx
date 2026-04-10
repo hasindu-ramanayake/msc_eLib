@@ -6,6 +6,7 @@ import SearchBar from './components/SearchBar';
 import UpcomingEvents from './components/UpcomingEvents';
 import Footer from './components/Footer';
 import SearchResults from './components/SearchResults';
+<<<<<<< main
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -30,6 +31,9 @@ const AdminProtectedRoute = ({ children }) => {
 
     return children;
 };
+=======
+import NotificationsPage from './pages/NotificationsPage';
+>>>>>>> NotificationService
 
 // Extracted the old App landing page contents into its own component
 const Home = () => {
@@ -62,6 +66,7 @@ const Home = () => {
 
 // Main App now handles the Router wrapping
 function App() {
+<<<<<<< main
     return (
         <AuthProvider>
             <Router>
@@ -84,6 +89,17 @@ function App() {
             </Router>
         </AuthProvider>
     );
+=======
+  return (
+    <Router>
+      <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/search" element={<SearchResults />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
+      </Routes>
+    </Router>
+  );
+>>>>>>> NotificationService
 }
 
 export default App;
