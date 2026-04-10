@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 const SearchBar = () => {
-  const [query, setQuery] = useState('');
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get('keyword') || '');
   const navigate = useNavigate();
+
+  // Keep query input in sync if URL changes externally
+  useEffect(() => {
+    setQuery(searchParams.get('keyword') || '');
+  }, [searchParams]);
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      navigate(`/search?key=${encodeURIComponent(query.trim())}`);
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('keyword', query.trim());
+      navigate(`/search?${newParams.toString()}`);
     }
   };
 

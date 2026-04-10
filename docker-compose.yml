@@ -14,6 +14,22 @@ services:
       timeout: 5s
       retries: 5
 
+  user_db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d user_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
     environment:
@@ -39,6 +55,23 @@ services:
       retries: 5
 
   # Microservices
+  user-service:
+    build:
+      context: ./backend/ElibMain
+      dockerfile: ./user-service/Dockerfile
+    ports:
+      - "8081:8081"
+    env_file: ./backend/ElibMain/user-service/.env
+    environment:
+      SERVER_PORT: 8081
+      SPRING_DATASOURCE_URL: jdbc:postgresql://user_db:5432/user_db
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      user_db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
   apigateway:
     build:
       context: ./backend/ElibMain
@@ -82,6 +115,19 @@ services:
       - "8083:8083"
     environment:
       SERVER_PORT: 8083
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+
+  item-service:
+    build:
+      context: ./backend/ElibMain
+      dockerfile: ./ItemService/Dockerfile
+    ports:
+      - "8072:8072"
+    environment:
+      SERVER_PORT: 8072
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
@@ -135,3 +181,7 @@ services:
       - "5173:80"
     depends_on:
       - apigateway
+
+volumes:
+  postgres_data:
+  user_db_data:

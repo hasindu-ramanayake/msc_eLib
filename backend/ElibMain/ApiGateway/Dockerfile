@@ -8,12 +8,14 @@ COPY pom.xml .
 COPY ApiGateway/pom.xml ApiGateway/
 COPY SearchService/pom.xml SearchService/
 COPY DiscoveryServer/pom.xml DiscoveryServer/
+COPY user-service/pom.xml user-service/
 COPY NotificationService/pom.xml NotificationService/
 COPY EventService/pom.xml EventService/
 COPY borrowservice/pom.xml borrowservice/
+COPY ItemService/pom.xml ItemService/
 
 # Build dependencies for ApiGateway
-RUN mvn -pl ApiGateway -am dependency:go-offline
+RUN mvn install -N && mvn -pl ApiGateway -am dependency:go-offline
 
 # Copy ApiGateway source
 COPY ApiGateway/src ApiGateway/src

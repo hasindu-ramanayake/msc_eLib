@@ -27,6 +27,8 @@
     <module>NotificationService</module>
     <module>EventService</module>
     <module>borrowservice</module>
+    <module>user-service</module>
+    <module>ItemService</module>
   </modules>
 
   <dependencies>
