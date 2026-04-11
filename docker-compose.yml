@@ -13,7 +13,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
   user_db:
     image: postgres:17-alpine
     environment:
@@ -26,6 +25,22 @@ services:
       - user_db_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d user_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  item_db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: item_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - item_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d item_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -126,10 +141,14 @@ services:
       dockerfile: ./ItemService/Dockerfile
     ports:
       - "8072:8072"
+    env_file: ./backend/ElibMain/ItemService/.env
     environment:
       SERVER_PORT: 8072
+      SPRING_DATASOURCE_URL: jdbc:postgresql://item_db:5432/item_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
+      item_db:
+        condition: service_healthy
       eureka-server:
         condition: service_healthy
 
@@ -185,3 +204,4 @@ services:
 volumes:
   postgres_data:
   user_db_data:
+  item_db_data:

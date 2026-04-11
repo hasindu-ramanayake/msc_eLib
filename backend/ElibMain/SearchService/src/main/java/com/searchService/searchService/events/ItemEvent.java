@@ -1,25 +1,30 @@
-package com.example.itemservice.dto;
+package com.searchService.searchService.events;
 
-import com.example.itemservice.entity.Genre;
 import lombok.Data;
 
-import java.util.Date;
-import java.util.UUID;
+import java.io.Serializable;
 
 @Data
-public class ItemDto {
-    private UUID id;
-    private String isbn13;
-    private String isbn10;
+public class ItemEvent implements Serializable {
+
+    private String id;
+
     private String title;
     private String subtitle;
-    private String author;
+    private String authors;
+
+    private String isbn13;
+    private String isbn10;
+
     private String categories;
     private String thumbnail;
     private String description;
+
     private String publishedYear;
     private String language;
     private String age;
 
     private int totalStock;
+
+    private String eventType;
 }
