@@ -1,7 +1,9 @@
 package com.example.borrowservice.service;
 
 import com.example.borrowservice.dto.BorrowDto;
+import com.example.borrowservice.dto.EventType;
 import com.example.borrowservice.dto.NewBorrowDto;
+import com.example.borrowservice.dto.NotificationEventDto;
 import com.example.borrowservice.entity.Borrow;
 import com.example.borrowservice.exception.BadRequestException;
 import com.example.borrowservice.exception.ResourceNotFoundException;
@@ -10,11 +12,13 @@ import com.example.borrowservice.mapper.NewBorrowMapper;
 import com.example.borrowservice.repository.BorrowRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -25,6 +29,7 @@ public class BorrowService {
     private final NewBorrowMapper newBorrowMapper;
     private final ItemService itemService;
     private final UserService userService;
+    private final RabbitTemplate rabbitTemplate;
 
     public List<BorrowDto> getAllBorrows() {
         return borrowRepository
@@ -56,7 +61,22 @@ public class BorrowService {
 
         borrow.setCheckOutDate(Date.from(Instant.now()));
 
+        NotificationEventDto notification = generateNotification(borrow.getUserId());
+
+//        rabbitTemplate.convertAndSend(notification);
+
         return borrowMapper.toDto(borrowRepository.save(borrow));
+    }
+
+    private NotificationEventDto generateNotification(UUID userId){
+        var dto = new NotificationEventDto();
+        dto.setEventType(EventType.ITEM_DUE_SOON);
+        dto.setUserId(userId);
+        dto.setPayload(Map.of(
+
+        ));
+        dto.setOccuredAt(Date.from(Instant.now()));
+        return dto;
     }
 
     public List<BorrowDto> getBorrowByUserId(UUID id){
