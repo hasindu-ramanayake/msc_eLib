@@ -1,6 +1,7 @@
 package com.example.borrowservice.client;
 
 import com.example.borrowservice.config.FeignClientConfiguration;
+import com.example.borrowservice.dto.ItemDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,5 +13,5 @@ import java.util.UUID;
 public interface ItemClient {
 
     @GetMapping("/api/v1/item/{id}")
-    ResponseEntity<?> getItemById(@PathVariable UUID id);
+    ResponseEntity<ItemDto> getItemById(@PathVariable UUID id);
 }
