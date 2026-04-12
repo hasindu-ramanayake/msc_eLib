@@ -1,9 +1,6 @@
 package com.example.borrowservice.service;
 
-import com.example.borrowservice.dto.BorrowDto;
-import com.example.borrowservice.dto.EventType;
-import com.example.borrowservice.dto.NewBorrowDto;
-import com.example.borrowservice.dto.NotificationEventDto;
+import com.example.borrowservice.dto.*;
 import com.example.borrowservice.entity.Borrow;
 import com.example.borrowservice.exception.BadRequestException;
 import com.example.borrowservice.exception.ResourceNotFoundException;
@@ -113,5 +110,17 @@ public class BorrowService {
 
         return borrowMapper.toDto(borrowRepository.save(borrow));
 
+    }
+
+    public AvailableResponseDto availableItems(UUID itemId){
+        var item = itemService.getItemById(itemId);
+        long amount = borrowRepository.countBorrowsByItemIdAndIsReturned(itemId, false);
+
+        var response = new AvailableResponseDto();
+        response.setItemId(itemId);
+        response.setAvailable(item.getTotalStock() > amount);
+        response.setAmount(item.getTotalStock() - amount);
+
+        return response;
     }
 }

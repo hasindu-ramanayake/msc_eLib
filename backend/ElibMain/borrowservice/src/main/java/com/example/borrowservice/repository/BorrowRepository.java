@@ -41,4 +41,6 @@ public interface BorrowRepository extends JpaRepository<Borrow, UUID> {
 
     @Query("SELECT b FROM Borrow b WHERE b.userId = :userId AND (b.isReturned = true AND b.dueDate > b.returnedDate)")
     List<Borrow> getUnderDueBorrows(UUID userId);
+
+
 }

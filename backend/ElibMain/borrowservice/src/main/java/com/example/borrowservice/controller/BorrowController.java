@@ -1,5 +1,6 @@
 package com.example.borrowservice.controller;
 
+import com.example.borrowservice.dto.AvailableResponseDto;
 import com.example.borrowservice.dto.BorrowDto;
 import com.example.borrowservice.dto.NewBorrowDto;
 import com.example.borrowservice.exception.NoContentException;
@@ -59,5 +60,10 @@ public class BorrowController {
     @PostMapping
     public ResponseEntity<BorrowDto> createBorrow(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth, @Valid @RequestBody NewBorrowDto newBorrow) {
         return ResponseEntity.ok(borrowService.createBorrow(auth, newBorrow));
+    }
+
+    @GetMapping("/available/{itemId}")
+    public ResponseEntity<AvailableResponseDto> getAvailableByItemId(@PathVariable UUID itemId){
+        return ResponseEntity.ok(borrowService.availableItems(itemId));
     }
 }
