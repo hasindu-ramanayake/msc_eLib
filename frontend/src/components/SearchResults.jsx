@@ -5,57 +5,53 @@ import SearchBar from './SearchBar';
 import SearchResultItem from './SearchResultItem';
 import CatalogFilter from './CatalogFilter';
 
-const mockResultsData = [
-  {
-    id: 1,
-    title: "Introduction to Algorithms",
-    author: "Thomas H. Cormen, Charles E. Leiserson",
-    description: "A comprehensive guide to modern algorithms. This book covers a broad range of algorithms in depth, yet makes their design and analysis accessible to all levels of readers."
-  },
-  {
-    id: 2,
-    title: "Clean Code",
-    author: "Robert C. Martin",
-    description: "A Handbook of Agile Software Craftsmanship. Even bad code can function. But if code isn't clean, it can bring a development organization to its knees."
-  },
-  {
-    id: 3,
-    title: "Design Patterns",
-    author: "Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides",
-    description: "Elements of Reusable Object-Oriented Software. Capturing a wealth of experience about the design of object-oriented software."
-  }
-];
-
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
-  const query = searchParams.get('key');
+  const query = searchParams.get('keyword');
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState([]);
 
-  // Mock search results (in reality this would fetch from an API based on `searchParams`)
+  // Fetch real search results from ApiGateway
   useEffect(() => {
-    setLoading(true);
+    const fetchResults = async () => {
+      setLoading(true);
+      try {
+        const keyword = query || '';
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+        // Base backend URL for SearchService via ApiGateway
+        let url = `${baseUrl}/api/v1/search?keyword=${encodeURIComponent(keyword)}`;
+        
+        const formats = searchParams.getAll('format');
+        const genres = searchParams.getAll('genre');
+        const ages = searchParams.getAll('age');
+        const language = searchParams.get('language') || '';
 
-    // Simulating a backend call to ElasticSearch with the current URL parameters
-    console.log('--- Simulating ElasticSearch API Fetch ---');
-    const apiQuery = {
-      q: query || '',
-      formats: searchParams.getAll('format'),
-      ages: searchParams.getAll('age'),
-      genres: searchParams.getAll('genre'),
-      language: searchParams.get('language') || 'english'
+        formats.forEach(f => url += `&formats=${encodeURIComponent(f)}`);
+        genres.forEach(g => url += `&genres=${encodeURIComponent(g)}`);
+        ages.forEach(a => url += `&ages=${encodeURIComponent(a)}`);
+        if (language && language !== 'multi') {
+          url += `&language=${encodeURIComponent(language)}`;
+        }
+        
+        console.log('--- Fetching real search results ---', url);
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setResults(data);
+      } catch (error) {
+        console.error('Error fetching search results:', error);
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
     };
-    console.log('Request payload:', apiQuery);
 
-    const timer = setTimeout(() => {
-      // Dummy check to simulate finding results
-      const filtered = query ? mockResultsData : [];
-      setResults(filtered);
-      setLoading(false);
-    }, 800);
-    
-    return () => clearTimeout(timer);
+    fetchResults();
   }, [searchParams, query]);
 
   return (

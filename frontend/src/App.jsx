@@ -13,6 +13,7 @@ import OAuth2RedirectHandler from './components/OAuth2RedirectHandler';
 import EditProfile from './components/EditProfile';
 import AdminPage from './components/AdminPage';
 import { Navigate } from 'react-router-dom';
+import NotificationsPage from './pages/NotificationsPage';
 
 /**
  * AdminProtectedRoute Component
@@ -48,8 +49,8 @@ const Home = () => {
                 </div>
             )}
 
-            {/* Main Content Container - Takes 2/3 of the screen width */}
-            <div className="w-2/3 max-w-none mt-8 flex flex-col flex-grow">
+            {/* Main Content Container - Flexibly spans whole screen on mobile */}
+            <div className="w-11/12 sm:w-5/6 md:w-2/3 lg:max-w-4xl mt-8 flex flex-col flex-grow">
                 <div className="text-center space-y-4 mb-10">
                     <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-600 tracking-tight">
                         E-Library
@@ -83,6 +84,7 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
                     <Route path="/edit-profile" element={<EditProfile />} />
+                    <Route path="/notifications" element={<NotificationsPage />} />
                     <Route
                         path="/admin"
                         element={
