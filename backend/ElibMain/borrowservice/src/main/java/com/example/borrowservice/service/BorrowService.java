@@ -3,11 +3,13 @@ package com.example.borrowservice.service;
 import com.example.borrowservice.dto.BorrowDto;
 import com.example.borrowservice.dto.NewBorrowDto;
 import com.example.borrowservice.entity.Borrow;
+import com.example.borrowservice.exception.BadRequestException;
 import com.example.borrowservice.exception.ResourceNotFoundException;
 import com.example.borrowservice.mapper.BorrowMapper;
 import com.example.borrowservice.mapper.NewBorrowMapper;
 import com.example.borrowservice.repository.BorrowRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -41,12 +43,16 @@ public class BorrowService {
                 );
     }
 
-    public BorrowDto createBorrow(NewBorrowDto newBorrowDto){
+    @SneakyThrows
+    public BorrowDto createBorrow(String auth, NewBorrowDto newBorrowDto){
         Borrow borrow = newBorrowMapper.toEntity(newBorrowDto);
 
         var item = itemService.getItemById(borrow.getItemId());
+        long totalItemsDue = borrowRepository.countBorrowsByItemIdAndIsReturned(borrow.getItemId(), false);
 
-        var user = userService.getUserById(borrow.getUserId());
+        if(totalItemsDue >= item.getTotalStock()) throw new BadRequestException("Item is out of stock");
+
+        var user = userService.getUserById(auth, borrow.getUserId());
 
         borrow.setCheckOutDate(Date.from(Instant.now()));
 

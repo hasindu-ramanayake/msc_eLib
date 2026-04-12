@@ -1,5 +1,6 @@
 package com.example.borrowservice.config;
 
+import com.example.borrowservice.exception.BadRequestException;
 import com.example.borrowservice.exception.ErrorResponse;
 import com.example.borrowservice.exception.NoContentException;
 import com.example.borrowservice.exception.ResourceNotFoundException;
@@ -29,16 +30,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-//    @ExceptionHandler(FeignException.NotFound.class)
-//    public ResponseEntity<ErrorResponse> handleNotFound(FeignException exception){
-//        ErrorResponse error = new ErrorResponse(
-//                LocalDateTime.now(),
-//                HttpStatus.NOT_FOUND.value(),
-//                HttpStatus.NOT_FOUND.getReasonPhrase(),
-//                exception.getMessage()
-//        );
-//        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-//    }
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequest(Exception exception){
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                exception.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(NoContentException.class)
     public ResponseEntity<ErrorResponse> handleNoContent(NoContentException exception){

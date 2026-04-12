@@ -7,6 +7,7 @@ import com.example.borrowservice.service.BorrowService;
 import com.example.borrowservice.service.CreditService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,7 +52,7 @@ public class BorrowController {
     }
 
     @PostMapping
-    public ResponseEntity<BorrowDto> createBorrow(@Valid @RequestBody NewBorrowDto newBorrow) {
-        return ResponseEntity.ok(borrowService.createBorrow(newBorrow));
+    public ResponseEntity<BorrowDto> createBorrow(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth, @Valid @RequestBody NewBorrowDto newBorrow) {
+        return ResponseEntity.ok(borrowService.createBorrow(auth, newBorrow));
     }
 }

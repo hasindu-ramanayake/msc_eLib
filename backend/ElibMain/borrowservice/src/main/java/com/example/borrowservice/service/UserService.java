@@ -14,11 +14,11 @@ public class UserService {
     private final UserClient userClient;
 
     @CircuitBreaker(name = "UserService", fallbackMethod = "fallback")
-    public ResponseEntity<?> getUserById(UUID id){
-        return userClient.getUserById(id);
+    public ResponseEntity<?> getUserById(String authHeader, UUID id){
+        return userClient.getUserById(authHeader, id);
     }
 
-    public ResponseEntity<?> fallback(UUID id, Throwable throwable) throws Throwable {
+    public ResponseEntity<?> fallback(String auth, UUID id, Throwable throwable) throws Throwable {
         throw throwable;
     }
 }
