@@ -1,3 +1,4 @@
+
 package com.elib.user.service;
 
 import com.elib.user.dto.AuthRequestDTO;
@@ -20,7 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.security.access.AccessDeniedException;
-
+import org.springframework.security.core.context.SecurityContextHolder; // Added for self-deletion check
+import com.elib.user.entity.NotificationPreference;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -68,9 +72,13 @@ public class UserServiceImp implements UserService {
         // 2. Map DTO to Entity
         User user = userMapper.toUserEntity(dto);
         
-        // 3. Assign default role if none provided
+        // 3. Assign default role and notification preferences if none provided (e.g., from Postman or public registration)
         if (user.getRole() == null) {
             user.setRole(Role.CUSTOMER);
+        }
+        
+        if (user.getNotificationPreferences() == null || user.getNotificationPreferences().isEmpty()) {
+            user.setNotificationPreferences(new HashSet<>(Collections.singletonList(NotificationPreference.EMAIL)));
         }
         
         // 4. Securely hash the password before saving
@@ -121,7 +129,8 @@ public class UserServiceImp implements UserService {
                 user.getEmail(),
                 user.getRole().name(),
                 user.getFirstName(),
-                user.getLastName()
+                user.getLastName(),
+                user.getId() // Added user ID to the response
         );
     }
 
@@ -132,8 +141,16 @@ public class UserServiceImp implements UserService {
         user.setFirstName(updateDetails.firstName());
         user.setLastName(updateDetails.lastName());
         user.setEmail(updateDetails.email());
-        user.setRole(updateDetails.role());
-        user.setNotificationPreferences(updateDetails.notificationPreferences());
+        
+        // Prevent overwriting role and notification preferences with null if not provided in the request
+        if (updateDetails.role() != null) {
+            user.setRole(updateDetails.role());
+        }
+        
+        if (updateDetails.notificationPreferences() != null) {
+            user.setNotificationPreferences(updateDetails.notificationPreferences());
+        }
+        
         user.setAddress(userMapper.toAddressEntity(updateDetails.address()));
         
         if (updateDetails.password() != null && !updateDetails.password().isEmpty()) {
@@ -144,6 +161,20 @@ public class UserServiceImp implements UserService {
     }
 
     public void deleteUser(UUID id) {
+        // 1. Get the current user's email from the security context
+        String currentUserEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        
+        // 2. Find the user to be deleted
+        User userToDelete = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
+        
+        // 3. Prevent admin from deleting themselves
+        if (userToDelete.getEmail().equals(currentUserEmail)) {
+            log.warn("Access Denied: Admin {} tried to delete their own account", currentUserEmail);
+            throw new AccessDeniedException("You cannot delete your own account");
+        }
+        
+        log.info("Deleting user: {} (ID: {})", userToDelete.getEmail(), id);
         userRepository.deleteById(id);
     }
 }

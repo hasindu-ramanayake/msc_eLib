@@ -64,6 +64,8 @@ public class UserMapper {
                 .lastName(dto.lastName())
                 .email(dto.email())
                 .password(dto.password())
+                .role(dto.role()) // Added to map the role from the registration request
+                .notificationPreferences(dto.notificationPreferences()) // Added to fix null preferences on registration
                 .address(toAddressEntity(dto.address()))
                 .build();
     }

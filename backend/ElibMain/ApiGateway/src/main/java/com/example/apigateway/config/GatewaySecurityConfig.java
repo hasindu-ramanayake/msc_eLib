@@ -52,7 +52,7 @@ public class GatewaySecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/v1/users/**").hasRole("ADMIN")
                         
                         // All other authenticated requests
-                        .anyRequest().hasAnyRole("CUSTOMER", "ADMIN")
+                        .anyRequest().hasAnyRole("CUSTOMER", "ADMIN", "STAFF") // Added STAFF role to allow profile updates and general access
                 );
 
         return http.build();
