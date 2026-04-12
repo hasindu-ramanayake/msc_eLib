@@ -70,7 +70,8 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public List<com.example.notificationservice.entity.Notification> getNotificationsForUser(UUID userId) {
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        return notificationRepository.findByUserIdAndChannelOrderByCreatedAtDesc(
+                userId, NotificationChannel.IN_APP);
     }
 
     // -------------------------------------------------------------------------

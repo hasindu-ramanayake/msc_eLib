@@ -4,34 +4,25 @@ import com.example.notificationservice.domain.ChannelResult;
 import com.example.notificationservice.domain.Message;
 import com.example.notificationservice.entity.NotificationChannel;
 import com.example.notificationservice.entity.UserPreferences;
-import com.sendgrid.Method;
-import com.sendgrid.Request;
-import com.sendgrid.Response;
-import com.sendgrid.SendGrid;
-import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.Content;
-import com.sendgrid.helpers.mail.objects.Email;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class EmailSender implements NotificationSender {
 
-    private final SendGrid sendGrid;
-    private final String fromEmail;
-    private final String fromName;
+    private final JavaMailSender mailSender;
 
-    public EmailSender(@Value("${sendgrid.api-key}")   String apiKey,
-                       @Value("${sendgrid.from-email}") String fromEmail,
-                       @Value("${sendgrid.from-name}")  String fromName) {
-        this.sendGrid  = new SendGrid(apiKey);
-        this.fromEmail = fromEmail;
-        this.fromName  = fromName;
-    }
+    @Value("${spring.mail.username}")
+    private String fromEmail;
+
+    @Value("${mail.from-name}")
+    private String fromName;
 
     @Override
     public ChannelResult send(UserPreferences user, Message message) {
@@ -41,32 +32,19 @@ public class EmailSender implements NotificationSender {
         }
 
         try {
-            Mail mail = new Mail(
-                    new Email(fromEmail, fromName),
-                    message.getSubject(),
-                    new Email(user.getEmail()),
-                    new Content("text/plain", message.getContent())
-            );
+            SimpleMailMessage mail = new SimpleMailMessage();
+            mail.setFrom(fromName + " <" + fromEmail + ">");
+            mail.setTo(user.getEmail());
+            mail.setSubject(message.getSubject());
+            mail.setText(message.getContent());
 
-            Request request = new Request();
-            request.setMethod(Method.POST);
-            request.setEndpoint("mail/send");
-            request.setBody(mail.build());
+            mailSender.send(mail);
 
-            Response response = sendGrid.api(request);
+            log.info("EMAIL sent to {} subject='{}'",
+                    user.getEmail(), message.getSubject());
+            return ChannelResult.ok(NotificationChannel.EMAIL);
 
-            if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
-                log.info("EMAIL sent to {} subject='{}'",
-                        user.getEmail(), message.getSubject());
-                return ChannelResult.ok(NotificationChannel.EMAIL);
-            } else {
-                log.error("SendGrid error status={} body={}",
-                        response.getStatusCode(), response.getBody());
-                return ChannelResult.failure(NotificationChannel.EMAIL,
-                        "SendGrid returned status " + response.getStatusCode());
-            }
-
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Failed to send EMAIL to userId={}", user.getUserId(), e);
             return ChannelResult.failure(NotificationChannel.EMAIL, e.getMessage());
         }
