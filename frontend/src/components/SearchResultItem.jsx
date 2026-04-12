@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SearchResultItem = ({ result }) => {
+const SearchResultItem = ({ result, onTitleClick }) => {
   return (
     <li className="p-6 hover:bg-gray-50 transition-colors cursor-pointer group">
       <div className="flex justify-between items-start gap-4">
@@ -12,7 +12,10 @@ const SearchResultItem = ({ result }) => {
           />
         )}
         <div className="flex-1">
-          <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-1">
+          <h3
+              onClick={() => onTitleClick(result)}
+              className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-1 cursor-pointer"
+          >
             {result.title}
           </h3>
           {result.subtitle && <p className="text-sm text-gray-500 mb-1">{result.subtitle}</p>}
