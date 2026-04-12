@@ -31,6 +31,11 @@ public class BorrowController {
         return ResponseEntity.ok(borrowService.getBorrowById(id));
     }
 
+    @PatchMapping("/{id}/return")
+    public ResponseEntity<BorrowDto> returnBorrowById(@PathVariable UUID id){
+        return ResponseEntity.ok(borrowService.returnItem(id));
+    }
+
     @GetMapping("/users/{user_id}")
     public ResponseEntity<List<BorrowDto>> getBorrowByUserId(@PathVariable UUID user_id){
         return ResponseEntity.ok(borrowService.getBorrowByUserId(user_id));

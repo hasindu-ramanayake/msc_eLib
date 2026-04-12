@@ -102,4 +102,16 @@ public class BorrowService {
                 .map(borrowMapper::toDto)
                 .toList();
     }
+
+    public BorrowDto returnItem(UUID id){
+        var borrow = borrowRepository
+                .findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Borrow not found"));
+
+        borrow.setIsReturned(true);
+        borrow.setReturnedDate(Date.from(Instant.now()));
+
+        return borrowMapper.toDto(borrowRepository.save(borrow));
+
+    }
 }
