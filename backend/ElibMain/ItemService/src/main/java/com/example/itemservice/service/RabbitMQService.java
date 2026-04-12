@@ -1,5 +1,6 @@
 package com.example.itemservice.service;
 
+import com.example.itemservice.config.RabbitMQConfig;
 import com.example.itemservice.entity.Item;
 import com.example.itemservice.events.ItemEvent;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,10 @@ public class RabbitMQService {
         event.setAge(item.getAge());
         event.setEventType(eventType);
 
-        amqpTemplate.convertAndSend("itemQueue", event);
+        amqpTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE,
+                RabbitMQConfig.ROUTING_KEY,
+                event
+        );
     }
 }

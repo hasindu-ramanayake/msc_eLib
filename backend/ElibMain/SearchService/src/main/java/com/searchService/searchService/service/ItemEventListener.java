@@ -15,6 +15,11 @@ public class ItemEventListener {
 
     @RabbitListener(queues = "itemQueue")
     public void handleItemEvent(ItemEvent event) {
+
+        System.out.println("EVENT RECEIVED: " + event.getEventType());
+        System.out.println("ITEM ID: " + event.getId());
+        System.out.println("TITLE: " + event.getTitle());
+
         switch (event.getEventType()) {
             case "CREATE", "UPDATE", "STOCK_INCREASE", "STOCK_DECREASE" -> {
                 Book book = new Book();
@@ -32,11 +37,16 @@ public class ItemEventListener {
                 book.setAge(event.getAge());
 
                 // Save to Elasticsearch (update the search index)
-                catalogRepository.save(book);
+                System.out.println("SAVING TO ELASTICSEARCH: " + book.getTitle());
+
+                Book saved = catalogRepository.save(book);
+
+                System.out.println("SAVED ID: " + saved.getId());
             }
 
             case "DELETE" -> {
                 // Delete the item from Elasticsearch
+                System.out.println("DELETING ID: " + event.getId());
                 catalogRepository.deleteById(event.getId());
             }
         }

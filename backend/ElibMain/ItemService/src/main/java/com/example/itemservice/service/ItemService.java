@@ -24,7 +24,7 @@ public class ItemService {
         Item saved= itemRepository.save(item);
 
         rabbitMQService.sendItemEvent(saved,"CREATE");
-        return itemMapper.toDto(item);
+        return itemMapper.toDto(saved);
     }
 
     public ItemDto updateItem(UUID id, ItemDto dto) {
