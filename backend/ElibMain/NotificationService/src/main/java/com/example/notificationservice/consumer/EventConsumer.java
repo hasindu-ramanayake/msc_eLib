@@ -32,3 +32,4 @@ public class EventConsumer {
                 event.getEventType(), event.getUserId(), event.getEventId());
         notificationService.handleEvent(event);
     }
+}
