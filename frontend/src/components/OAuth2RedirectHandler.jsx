@@ -13,6 +13,8 @@ const OAuth2RedirectHandler = () => {
     const { login } = useAuth();
 
     useEffect(() => {
+        console.log("OAuth2RedirectHandler: Processing redirect...");
+        
         // Parse the query parameters from the URL
         const params = new URLSearchParams(location.search);
         
@@ -22,8 +24,10 @@ const OAuth2RedirectHandler = () => {
         const firstName = params.get('firstName');
         const lastName = params.get('lastName');
         const role = params.get('role');
+        const id = params.get('id'); // Added to fix frontend missing data
 
         if (token) {
+            console.log("OAuth2RedirectHandler: Token found, updating AuthContext...");
             // Persist the information in the AuthContext (and localStorage)
             login({
                 token,
@@ -31,16 +35,18 @@ const OAuth2RedirectHandler = () => {
                 email,
                 firstName,
                 lastName,
-                role
+                role,
+                id // Added user ID to the session
             });
             // Redirect to home page after successful session update
+            console.log("OAuth2RedirectHandler: Success. Navigating to home...");
             navigate('/', { replace: true });
         } else {
             // Handle cases where no token is provided (failed authentication)
-            console.error('Authentication failed: No token found in redirect URL');
+            console.warn('OAuth2RedirectHandler: No token found in URL, redirecting to login');
             navigate('/login', { replace: true });
         }
-    }, [location, login, navigate]);
+    }, [location.search, login, navigate]); // Only depend on location.search to prevent re-runs on path change
 
     return (
         <div className="flex items-center justify-center min-h-screen">

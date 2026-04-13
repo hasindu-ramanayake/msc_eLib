@@ -30,6 +30,38 @@ services:
       timeout: 5s
       retries: 5
 
+  item_db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: item_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - item_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d item_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  borrow_db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: borrow_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5454:5454"
+    volumes:
+      - borrow_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d borrow_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
     environment:
@@ -37,10 +69,12 @@ services:
     ports:
       - "9200:9200"
     healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health || exit 1"]
       interval: 15s
       timeout: 10s
-      retries: 5
+      retries: 10
+
+
 
   eureka-server:
     build:
@@ -66,10 +100,16 @@ services:
       SERVER_PORT: 8081
       SPRING_DATASOURCE_URL: jdbc:postgresql://user_db:5432/user_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: admin123
     depends_on:
       user_db:
         condition: service_healthy
       eureka-server:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
 
   apigateway:
@@ -88,6 +128,7 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
+
   notification-service:
     build:
       context: ./backend/ElibMain
@@ -132,10 +173,14 @@ services:
       dockerfile: ./ItemService/Dockerfile
     ports:
       - "8072:8072"
+    env_file: ./backend/ElibMain/ItemService/.env
     environment:
       SERVER_PORT: 8072
+      SPRING_DATASOURCE_URL: jdbc:postgresql://item_db:5432/item_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
+      item_db:
+        condition: service_healthy
       eureka-server:
         condition: service_healthy
 
@@ -148,9 +193,15 @@ services:
     environment:
       SERVER_PORT: 8084
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://borrow_db:5432/borrow_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
+      borrow_db:
+        condition: service_healthy
       eureka-server:
         condition: service_healthy
+
   search-service:
     build:
       context: ./backend/ElibMain
@@ -165,6 +216,7 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
+
   rabbitmq:
     image: rabbitmq:3.11-management
     container_name: rabbitmq
@@ -180,6 +232,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
   frontend:
     build:
       context: ./frontend
@@ -191,3 +244,5 @@ services:
 volumes:
   postgres_data:
   user_db_data:
+  item_db_data:
+  borrow_db_data:

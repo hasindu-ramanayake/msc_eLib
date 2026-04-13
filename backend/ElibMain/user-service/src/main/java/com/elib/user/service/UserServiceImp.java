@@ -1,3 +1,4 @@
+
 package com.elib.user.service;
 
 import com.elib.user.dto.AuthRequestDTO;
@@ -172,8 +173,7 @@ public class UserServiceImp implements UserService {
         user.setLastName(updateDetails.lastName());
         user.setEmail(updateDetails.email());
 
-        // Prevent overwriting role and notification preferences with null if not
-        // provided
+        // Prevent overwriting role and notification preferences with null if not provided
         if (updateDetails.role() != null) {
             user.setRole(updateDetails.role());
         }

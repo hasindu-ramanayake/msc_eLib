@@ -51,9 +51,15 @@ public class GatewaySecurityConfig {
                         // Admin Only endpoints
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/users").hasRole("ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/v1/users/**").hasRole("ADMIN")
+
+                        // Staff & Admin Inventory Management
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/item/**").hasAnyRole("STAFF", "ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/v1/item/**").hasAnyRole("STAFF", "ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/v1/item/**").hasAnyRole("STAFF", "ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/v1/item/**").hasAnyRole("STAFF", "ADMIN")
                         
                         // All other authenticated requests
-                        .anyRequest().hasAnyRole("CUSTOMER", "ADMIN")
+                        .anyRequest().hasAnyRole("CUSTOMER", "ADMIN", "STAFF") // Added STAFF role to allow profile updates and general access
                 );
 
         return http.build();

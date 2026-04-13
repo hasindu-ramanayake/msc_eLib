@@ -1,4 +1,5 @@
 package com.elib.user.dto;
+import java.util.UUID;
 //Backend to frontend
 public record AuthResponseDTO(
     String token,
@@ -6,5 +7,6 @@ public record AuthResponseDTO(
     String email,
     String role,
     String firstName,
-    String lastName
+    String lastName,
+    UUID id
 ) {}
