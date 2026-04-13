@@ -2,11 +2,13 @@ package com.example.notificationservice.service;
 
 import com.example.notificationservice.builder.AbstractMessageBuilder;
 import com.example.notificationservice.builder.MessageBuilderFactory;
+import com.example.notificationservice.client.UserServiceClient;
 import com.example.notificationservice.dispatcher.ChannelStrategyFactory;
 import com.example.notificationservice.dispatcher.NotificationDispatcher;
 import com.example.notificationservice.domain.ChannelResult;
 import com.example.notificationservice.domain.Message;
 import com.example.notificationservice.dto.NotificationEventDTO;
+import com.example.notificationservice.dto.UserServiceResponseDTO;
 import com.example.notificationservice.entity.*;
 import com.example.notificationservice.exception.ResourceNotFoundException;
 import com.example.notificationservice.repository.NotificationRepository;
@@ -28,7 +30,7 @@ import java.util.UUID;
 public class NotificationService {
 
     private final NotificationRepository    notificationRepository;
-    private final PreferencesRepository     preferencesRepository;
+    private final UserServiceClient         userServiceClient;
     private final MessageBuilderFactory     messageBuilderFactory;
     private final ChannelStrategyFactory    channelStrategyFactory;
     private final NotificationDispatcher    notificationDispatcher;
@@ -55,9 +57,11 @@ public class NotificationService {
 
         NotificationType notificationType = resolveType(event);
 
-        UserPreferences prefs = preferencesRepository.findByUserId(event.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "No preferences found for userId=" + event.getUserId()));
+        // Fetch user data from User Service using the JWT from the event
+        UserServiceResponseDTO userDto = userServiceClient.getUserById(
+                event.getUserId(), event.getJwtToken());
+
+        UserPreferences prefs = UserPreferences.fromUserServiceResponse(userDto);
 
         AbstractMessageBuilder builder = messageBuilderFactory.forType(notificationType);
         Message message = builder.build(event.getPayload());

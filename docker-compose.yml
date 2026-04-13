@@ -106,6 +106,7 @@ services:
       TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
       TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
       TWILIO_FROM_NUMBER: ${TWILIO_FROM_NUMBER}
+      USER_SERVICE_URL: http://user-service:8081
     depends_on:
       rabbitmq:
         condition: service_healthy

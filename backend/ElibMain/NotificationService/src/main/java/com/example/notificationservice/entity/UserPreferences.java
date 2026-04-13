@@ -1,5 +1,6 @@
 package com.example.notificationservice.entity;
 
+import com.example.notificationservice.dto.UserServiceResponseDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,4 +35,15 @@ public class UserPreferences {
 
     @Column(nullable = false)
     private boolean smsEnabled = false;
+
+    public static UserPreferences fromUserServiceResponse(UserServiceResponseDTO dto) {
+        UserPreferences prefs = new UserPreferences();
+        prefs.setUserId(dto.getId());
+        prefs.setEmail(dto.getEmail());
+        prefs.setPhoneNumber(null); // not provided by User Service yet
+        prefs.setInAppEnabled(dto.getNotificationPreferences().contains("IN_APP"));
+        prefs.setEmailEnabled(dto.getNotificationPreferences().contains("EMAIL"));
+        prefs.setSmsEnabled(dto.getNotificationPreferences().contains("SMS"));
+        return prefs;
+    }
 }

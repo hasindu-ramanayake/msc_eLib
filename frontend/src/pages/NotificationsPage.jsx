@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { useAuth } from '../context/AuthContext';
 
-const MOCK_USER_ID = '550e8400-e29b-41d4-a716-446655440000';
 const API_BASE = 'http://localhost:8082';
 
 const TYPE_CONFIG = {
@@ -50,12 +50,23 @@ const NotificationsPage = () => {
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('ALL');
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const userId = user?.id;
+
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (!userId) {
+            navigate('/login');
+        }
+    }, [userId, navigate]);
 
     useEffect(() => {
+        if (!userId) return;
+
         const fetchAll = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`${API_BASE}/api/v1/notifications/users/${MOCK_USER_ID}`);
+                const res = await fetch(`${API_BASE}/api/v1/notifications/users/${userId}`);
                 if (res.ok) setNotifications(await res.json());
             } catch {
                 // silently fail
@@ -64,7 +75,9 @@ const NotificationsPage = () => {
             }
         };
         fetchAll();
-    }, []);
+    }, [userId]);
+
+    if (!userId) return null;
 
     const types = ['ALL', ...Object.keys(TYPE_CONFIG)];
 
@@ -139,9 +152,9 @@ const NotificationsPage = () => {
                                         {/* Body */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cfg.badge}`}>
-                          {cfg.label}
-                        </span>
+                                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cfg.badge}`}>
+                                                    {cfg.label}
+                                                </span>
                                                 <span className="text-xs text-gray-400">{formatDate(n.createdAt)}</span>
                                             </div>
                                             <p className="text-sm font-semibold text-gray-900 mb-0.5">{n.title}</p>
@@ -156,8 +169,8 @@ const NotificationsPage = () => {
                                                     ? 'bg-red-100 text-red-700'
                                                     : 'bg-gray-100 text-gray-500'
                                         }`}>
-                      {n.status}
-                    </span>
+                                            {n.status}
+                                        </span>
                                     </div>
                                 </li>
                             );
