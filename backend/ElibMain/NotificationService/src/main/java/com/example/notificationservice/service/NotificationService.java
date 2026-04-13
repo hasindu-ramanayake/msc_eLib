@@ -70,7 +70,8 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public List<com.example.notificationservice.entity.Notification> getNotificationsForUser(UUID userId) {
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        return notificationRepository.findByUserIdAndChannelOrderByCreatedAtDesc(
+                userId, NotificationChannel.IN_APP);
     }
 
     // -------------------------------------------------------------------------
@@ -93,5 +94,10 @@ public class NotificationService {
         notification.setStatus(result.isSuccess() ? NotificationStatus.SENT : NotificationStatus.FAILED);
         notification.setDeliveredAt(result.isSuccess() ? new Date() : null);
         notificationRepository.save(notification);
+    }
+
+    @Transactional
+    public void markAllAsRead(UUID userId) {
+        notificationRepository.markAllAsReadForUser(userId);
     }
 }

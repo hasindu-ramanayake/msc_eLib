@@ -16,5 +16,5 @@ public class BorrowDto {
     private Date checkOutDate;
     private Date dueDate;
     private Boolean isReturned;
-    private Date returnDate;
+    private Date returnedDate;
 }

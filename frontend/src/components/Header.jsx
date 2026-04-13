@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import NotificationBell from './NotificationBell';
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -35,6 +36,10 @@ const Header = () => {
           <a href="/library-info" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
             LibraryInfo
           </a>
+          {/* Add the "Manage Items" Button */}
+          <Link to="/staff-page" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
+            Manage Items
+          </Link>
           {/* <a href="#" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
             Event Calender
           </a> */}
@@ -45,7 +50,8 @@ const Header = () => {
             My Books
           </a> */}
 
-          <div className="pl-4 ml-2 border-l border-gray-200 relative">
+          <div className="pl-4 ml-2 border-l border-gray-200 flex items-center space-x-4 relative">
+            {user && <NotificationBell />}
             {user ? (
               <div className="relative">
                 <button

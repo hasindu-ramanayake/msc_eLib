@@ -13,6 +13,8 @@ import OAuth2RedirectHandler from './components/OAuth2RedirectHandler';
 import EditProfile from './components/EditProfile';
 import AdminPage from './components/AdminPage';
 import { Navigate } from 'react-router-dom';
+import NotificationsPage from './pages/NotificationsPage';
+import StaffPage from './components/StaffPage';
 
 /**
  * AdminProtectedRoute Component
@@ -72,6 +74,8 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
                     <Route path="/edit-profile" element={<EditProfile />} />
+                    <Route path="/notifications" element={<NotificationsPage />} />
+                    <Route path="/staff-page" element={<StaffPage />} />
                     <Route
                         path="/admin"
                         element={

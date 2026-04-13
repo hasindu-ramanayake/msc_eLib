@@ -4,6 +4,7 @@ import Header from './Header';
 import SearchBar from './SearchBar';
 import SearchResultItem from './SearchResultItem';
 import CatalogFilter from './CatalogFilter';
+import BookPopup from './BookPopup';
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
@@ -11,6 +12,7 @@ const SearchResults = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState([]);
+  const [selectedBook, setSelectedBook] = useState(null);
 
   // Fetch real search results from ApiGateway
   useEffect(() => {
@@ -102,7 +104,7 @@ const SearchResults = () => {
 
                   {results.length > 0 ? (
                     results.map((result) => (
-                      <SearchResultItem key={result.id} result={result} />
+                      <SearchResultItem key={result.id} result={result} onTitleClick={setSelectedBook} />
                     ))
                   ) : (
                     <li className="p-10 text-center text-gray-500">
@@ -117,6 +119,15 @@ const SearchResults = () => {
 
         </div>
       </div>
+
+      {/* Book Popup */}
+      {selectedBook && (
+          <BookPopup
+              book={selectedBook}
+              closePopup={() => setSelectedBook(null)}
+          />
+      )}
+
     </div>
   );
 };
