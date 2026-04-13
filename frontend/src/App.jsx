@@ -102,7 +102,6 @@ function App() {
                     <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
                     <Route path="/edit-profile" element={<EditProfile />} />
                     <Route path="/notifications" element={<NotificationsPage />} />
-                    <Route path="/staff-page" element={<StaffPage />} />
                     <Route
                         path="/admin"
                         element={
