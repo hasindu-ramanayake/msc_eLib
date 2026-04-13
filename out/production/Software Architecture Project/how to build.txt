@@ -1,0 +1,14 @@
+docker compose up -d --build
+
+
+docker compose up -d apigateway
+docker compose up -d search-service
+docker compose up -d frontend
+
+
+Service Access
+Frontend: http://localhost:5173
+Api Gateway: http://localhost:8765
+Search Service: http://localhost:8080 (Internal: http://search-service:8080)
+Eureka Dashboard: http://localhost:8761
+Elasticsearch: http://localhost:9200

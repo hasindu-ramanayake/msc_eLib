@@ -36,6 +36,10 @@ const Header = () => {
           <a href="/library-info" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
             LibraryInfo
           </a>
+          {/* Add the "Manage Items" Button */}
+          <Link to="/staff-page" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
+            Manage Items
+          </Link>
           {/* <a href="#" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
             Event Calender
           </a> */}

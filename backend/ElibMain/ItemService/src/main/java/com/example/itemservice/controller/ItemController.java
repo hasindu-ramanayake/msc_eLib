@@ -50,6 +50,11 @@ public class ItemController {
         return itemService.getAllItems();
     }
 
+    @GetMapping("/search")
+    public List<ItemDto> search(@RequestParam String keyword) {
+        return itemService.search(keyword);
+    }
+
     @PatchMapping("/{id}/increase")
     public void increaseStock(@PathVariable UUID id, @RequestParam int quantity) {
         itemService.increaseStock(id, quantity);

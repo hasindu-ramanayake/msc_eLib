@@ -1,5 +1,6 @@
 package com.example.borrowservice.controller;
 
+import com.example.borrowservice.dto.AvailableResponseDto;
 import com.example.borrowservice.dto.BorrowDto;
 import com.example.borrowservice.dto.NewBorrowDto;
 import com.example.borrowservice.exception.NoContentException;
@@ -7,6 +8,7 @@ import com.example.borrowservice.service.BorrowService;
 import com.example.borrowservice.service.CreditService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +32,11 @@ public class BorrowController {
         return ResponseEntity.ok(borrowService.getBorrowById(id));
     }
 
+    @PatchMapping("/{id}/return")
+    public ResponseEntity<BorrowDto> returnBorrowById(@PathVariable UUID id){
+        return ResponseEntity.ok(borrowService.returnItem(id));
+    }
+
     @GetMapping("/users/{user_id}")
     public ResponseEntity<List<BorrowDto>> getBorrowByUserId(@PathVariable UUID user_id){
         return ResponseEntity.ok(borrowService.getBorrowByUserId(user_id));
@@ -51,7 +58,12 @@ public class BorrowController {
     }
 
     @PostMapping
-    public ResponseEntity<BorrowDto> createBorrow(@Valid @RequestBody NewBorrowDto newBorrow) {
-        return ResponseEntity.ok(borrowService.createBorrow(newBorrow));
+    public ResponseEntity<BorrowDto> createBorrow(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth, @Valid @RequestBody NewBorrowDto newBorrow) {
+        return ResponseEntity.ok(borrowService.createBorrow(auth, newBorrow));
+    }
+
+    @GetMapping("/available/{itemId}")
+    public ResponseEntity<AvailableResponseDto> getAvailableByItemId(@PathVariable UUID itemId){
+        return ResponseEntity.ok(borrowService.availableItems(itemId));
     }
 }

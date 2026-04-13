@@ -1,110 +1,146 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
-import ItemFormModal from './ItemFormModal';
 
 /**
  * StaffPage Component
- * Provides staff and admins with a dashboard to manage the inventory (items).
- * Allows viewing all items, adding new ones, editing, and deleting items.
+ * Provides a dashboard to manage items (books, games, movies) in the library.
+ * Accessible without requiring the user to log in.
  */
 const StaffPage = () => {
-    const { user } = useAuth();
     const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState('books'); // Default to 'books' tab
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [actionLoading, setActionLoading] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedItem, setSelectedItem] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [deleteLoading, setDeleteLoading] = useState(null);
+    const [showModal, setShowModal] = useState(false); // To control modal visibility
+    const [formData, setFormData] = useState({
+        id: null,
+        title: '',
+        language: 'English',
+        publishedYear: new Date().getFullYear(),
+        isbn: '',
+        location: '',
+        date: '',
+        description: ''
+    });
 
-    useEffect(() => {
-        // Double check access
-        if (!user || (user.role !== 'STAFF' && user.role !== 'ADMIN')) {
-            navigate('/');
-            return;
-        }
+    const mockData = {
+        events: [
+            { id: 1, title: 'Event 1', location: 'Main Hall', date: 'Oct 20, 2026', description: 'Event description 1' },
+            { id: 2, title: 'Event 2', location: 'Tech Lab 2', date: 'Oct 26, 2026', description: 'Event description 2' },
+            { id: 3, title: 'Event 3', location: 'Reading Room B', date: 'Oct 28, 2026', description: 'Event description 3' },
+        ],
+        books: [
+            { id: 1, title: 'The Great Gatsby', category: 'Book', language: 'English', publishedYear: 2020, isbn: '9780743273565' },
+            { id: 2, title: '1984', category: 'Book', language: 'English', publishedYear: 2021, isbn: '9780451524935' },
+            { id: 3, title: 'To Kill a Mockingbird', category: 'Book', language: 'English', publishedYear: 2022, isbn: '9780061120084' },
+        ],
+        games: [
+            { id: 1, title: 'Chess', category: 'Game', language: 'English', publishedYear: 2020 },
+            { id: 2, title: 'Monopoly', category: 'Game', language: 'English', publishedYear: 2021 },
+        ],
+        movies: [
+            { id: 1, title: 'The Matrix', category: 'Movie', language: 'English', publishedYear: 1999 },
+            { id: 2, title: 'Inception', category: 'Movie', language: 'English', publishedYear: 2010 },
+        ],
+    };
 
-        fetchItems();
-    }, [user, navigate]);
+    // Function to handle tab change
+    const handleTabClick = (tab) => {
+        setActiveTab(tab);
+        fetchItems(tab);
+    };
 
-    const fetchItems = async () => {
+    // Function to format date
+    const formatDate = (date) => {
+        return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
+    // Function to simulate data fetching (mock data)
+    const fetchItems = (tab) => {
         setLoading(true);
         try {
-            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
-            const response = await fetch(`${baseUrl}/api/v1/item`, {
-                headers: {
-                    'Authorization': `Bearer ${user.token}`
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
+            // Get data based on active tab
+            const data = mockData[tab];
+            setTimeout(() => {
                 setItems(data);
-                setError(null);
-            } else {
-                const text = await response.text();
-                setError(`Failed to fetch items: ${text || response.statusText}`);
-            }
+                setLoading(false);
+            }, 1000); // Simulate network delay
         } catch (err) {
-            setError('An error occurred while connecting to the server.');
-        } finally {
+            setError('An error occurred while loading items.');
             setLoading(false);
         }
     };
 
-    const handleDeleteItem = async (itemId, title) => {
-        if (!window.confirm(`Are you sure you want to delete the item "${title}"?`)) {
+    // Handle deleting an item
+    const handleDeleteItem = async (itemId) => {
+        if (!window.confirm(`Are you sure you want to delete this item? This action cannot be undone.`)) {
             return;
         }
 
-        setActionLoading(itemId);
+        setDeleteLoading(itemId);
         try {
-            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
-            const response = await fetch(`${baseUrl}/api/v1/item/${itemId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${user.token}`
-                }
-            });
-
-            if (response.ok) {
-                setItems(items.filter(item => item.itemId !== itemId));
-            } else {
-                const errorData = await response.json();
-                alert(errorData.message || 'Failed to delete item');
-            }
+            // In a real scenario, call the backend to delete the item
+            setItems(items.filter(item => item.id !== itemId));
         } catch (err) {
             alert('An error occurred while attempting to delete the item.');
         } finally {
-            setActionLoading(null);
+            setDeleteLoading(null);
         }
     };
 
-    const handleOpenAddModal = () => {
-        setSelectedItem(null);
-        setIsModalOpen(true);
+    // Handle editing an item
+    const handleEditItem = (itemId) => {
+        const item = items.find(i => i.id === itemId);
+        setFormData({ ...item });
+        setShowModal(true); // Open the modal to update the item
     };
 
-    const handleOpenEditModal = (item) => {
-        setSelectedItem(item);
-        setIsModalOpen(true);
+    // Handle adding a new item
+    const handleAddItem = () => {
+        setFormData({
+            id: null,
+            title: '',
+            language: '',
+            publishedYear: new Date().getFullYear(),
+            isbn: activeTab === 'books' ? '' : '',
+            location: activeTab === 'events' ? '' : '',
+            date: activeTab === 'events' ? '' : '',
+            description: activeTab === 'events' ? '' : '',
+        });
+        setShowModal(true); // Open the modal to add a new item
     };
 
-    const handleFormSubmitSuccess = () => {
-        setIsModalOpen(false);
-        fetchItems();
+    // Handle form input changes
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
     };
 
-    const filteredItems = items.filter(item => 
-        item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.author?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.isbn?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Handle form submission (Add or Update)
+    const handleSubmit = () => {
+        if (formData.id) {
+            // Update item
+            setItems(items.map((item) => (item.id === formData.id ? formData : item)));
+        } else {
+            // Add new item
+            const newItem = { ...formData, id: items.length + 1 };
+            setItems([...items, newItem]);
+        }
+        setShowModal(false); // Close the modal
+    };
 
-    if (loading && items.length === 0) {
+    // On initial load, fetch the items for the default 'books' tab
+    useEffect(() => {
+        fetchItems('books');
+    }, []);
+
+    if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -119,113 +155,126 @@ const StaffPage = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Inventory Management</h1>
-                        <p className="mt-1 text-gray-500">Add, edit, and track library items and stock levels.</p>
+                        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Item Management</h1>
+                        <p className="mt-1 text-gray-500">View and manage all items in the system.</p>
                     </div>
-                    <div className="mt-4 md:mt-0 flex space-x-3">
+                    <div className="mt-4 md:mt-0">
                         <button
-                            onClick={fetchItems}
-                            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                            onClick={handleAddItem}
+                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                         >
-                            Refresh
-                        </button>
-                        <button
-                            onClick={handleOpenAddModal}
-                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                        >
-                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
                             Add New Item
                         </button>
                     </div>
                 </div>
 
-                {/* Search / Filter Bar */}
-                <div className="mb-6">
-                    <div className="relative max-w-md">
-                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </span>
-                        <input
-                            type="text"
-                            placeholder="Filter by title, author, or ISBN..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
-                        />
-                    </div>
+                {/* Tabs for category navigation */}
+                <div className="flex space-x-6 mb-8">
+                    <button
+                        className={`px-4 py-2 font-semibold text-sm ${activeTab === 'events' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                        onClick={() => handleTabClick('events')}
+                    >
+                        Events
+                    </button>
+                    <button
+                        className={`px-4 py-2 font-semibold text-sm ${activeTab === 'books' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                        onClick={() => handleTabClick('books')}
+                    >
+                        Books
+                    </button>
+                    <button
+                        className={`px-4 py-2 font-semibold text-sm ${activeTab === 'games' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                        onClick={() => handleTabClick('games')}
+                    >
+                        Games
+                    </button>
+                    <button
+                        className={`px-4 py-2 font-semibold text-sm ${activeTab === 'movies' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                        onClick={() => handleTabClick('movies')}
+                    >
+                        Movies
+                    </button>
                 </div>
 
+                {/* Error Message */}
                 {error && (
                     <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-center">
-                        <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                        <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
                         {error}
                     </div>
                 )}
 
+                {/* Item Management Table */}
                 <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Item Details</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Genre</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ISBN</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Stock</th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Item Id</th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Title</th>
+                                    {activeTab === 'books' && (
+                                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Language</th>
+                                    )}
+                                    {activeTab === 'books' && (
+                                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Published Year</th>
+                                    )}
+                                    {(activeTab === 'games' || activeTab === 'movies') && (
+                                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Release Year</th>
+                                    )}
+                                    {activeTab === 'books' && (
+                                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ISBN</th>
+                                    )}
+                                    {activeTab === 'events' && (
+                                        <>
+                                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Location</th>
+                                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                                        </>
+                                    )}
                                     <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {filteredItems.length === 0 ? (
+                                {items.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-10 text-center text-gray-500 italic">
-                                            {searchQuery ? 'No items match your search.' : 'No items found in inventory.'}
+                                        <td colSpan="6" className="px-6 py-10 text-center text-gray-500 italic">
+                                            No items found.
                                         </td>
                                     </tr>
                                 ) : (
-                                    filteredItems.map((item) => (
-                                        <tr key={item.itemId} className="hover:bg-blue-50/30 transition-colors duration-150">
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex items-center">
-                                                    <div className="flex-shrink-0 h-10 w-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
-                                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                                                    </div>
-                                                    <div className="ml-4">
-                                                        <div className="text-sm font-bold text-gray-900">{item.title}</div>
-                                                        <div className="text-sm text-gray-500">{item.author}</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 uppercase tracking-wider">
-                                                    {item.genre}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                                                {item.isbn}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-center">
-                                                <span className={`text-sm font-bold ${item.totalStock < 5 ? 'text-red-600' : 'text-gray-900'}`}>
-                                                    {item.totalStock}
-                                                </span>
-                                            </td>
+                                    items.map((item) => (
+                                        <tr key={item.id} className="hover:bg-blue-50/30 transition-colors duration-150">
+                                            <td className="px-6 py-4 whitespace-nowrap">{item.id}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap">{item.title}</td>
+                                            {activeTab === 'books' && (
+                                                <td className="px-6 py-4 whitespace-nowrap">{item.language}</td>
+                                            )}
+                                            {activeTab !== 'events' && (
+                                                <td className="px-6 py-4 whitespace-nowrap">{item.publishedYear}</td>
+                                            )}
+                                            {activeTab === 'books' && (
+                                                <td className="px-6 py-4 whitespace-nowrap">{item.isbn}</td>
+                                            )}
+                                            {activeTab === 'events' && (
+                                                <>
+                                                    <td className="px-6 py-4 whitespace-nowrap">{item.location}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">{formatDate(item.date)}</td>
+                                                </>
+                                            )}
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <div className="flex justify-end space-x-2">
-                                                    <button
-                                                        onClick={() => handleOpenEditModal(item)}
-                                                        className="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md transition-all"
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDeleteItem(item.itemId, item.title)}
-                                                        disabled={actionLoading === item.itemId}
-                                                        className={`text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md transition-all ${
-                                                            actionLoading === item.itemId ? 'opacity-50 cursor-not-allowed' : ''
-                                                        }`}
-                                                    >
-                                                        {actionLoading === item.itemId ? '...' : 'Delete'}
-                                                    </button>
-                                                </div>
+                                                <button
+                                                    onClick={() => handleEditItem(item.id)}
+                                                    className="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-all"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteItem(item.id)}
+                                                    className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg transition-all ml-2"
+                                                >
+                                                    Delete
+                                                </button>
                                             </td>
                                         </tr>
                                     ))
@@ -234,16 +283,136 @@ const StaffPage = () => {
                         </table>
                     </div>
                 </div>
-            </div>
 
-            {isModalOpen && (
-                <ItemFormModal
-                    item={selectedItem}
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    onSuccess={handleFormSubmitSuccess}
-                />
-            )}
+                {/* Add/Edit Modal */}
+                {showModal && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50 z-50">
+                        <div className="bg-white p-8 rounded-lg shadow-lg w-96">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                                {formData.id ? 'Edit Item' : 'Add New Item'}
+                            </h3>
+
+                            {/* Form Inputs */}
+                            <div>
+                                <label htmlFor="title" className="block text-sm font-medium text-gray-600">Title</label>
+                                <input
+                                    type="text"
+                                    id="title"
+                                    name="title"
+                                    value={formData.title}
+                                    onChange={handleInputChange}
+                                    className="w-full p-2 mt-1 border rounded-md"
+                                />
+                            </div>
+                            {activeTab === 'books' && (
+                              <div className="mt-4">
+                                  <label htmlFor="language" className="block text-sm font-medium text-gray-600">Language</label>
+                                  <input
+                                      type="text"
+                                      id="language"
+                                      name="language"
+                                      value={formData.language}
+                                      onChange={handleInputChange}
+                                      className="w-full p-2 mt-1 border rounded-md"
+                                  />
+                              </div>
+                            )}
+                            {activeTab === 'books' && (
+                              <div className="mt-4">
+                                  <label htmlFor="publishedYear" className="block text-sm font-medium text-gray-600">Published Year</label>
+                                  <input
+                                      type="number"
+                                      id="publishedYear"
+                                      name="publishedYear"
+                                      value={formData.publishedYear}
+                                      onChange={handleInputChange}
+                                      className="w-full p-2 mt-1 border rounded-md"
+                                  />
+                              </div>
+                            )}
+                            {(activeTab === 'games' || activeTab === 'movies') && (
+                              <div className="mt-4">
+                                  <label htmlFor="publishedYear" className="block text-sm font-medium text-gray-600">Release Year</label>
+                                  <input
+                                      type="number"
+                                      id="publishedYear"
+                                      name="publishedYear"
+                                      value={formData.publishedYear}
+                                      onChange={handleInputChange}
+                                      className="w-full p-2 mt-1 border rounded-md"
+                                  />
+                              </div>
+                            )}
+                            {activeTab === 'books' && (
+                                <div className="mt-4">
+                                    <label htmlFor="isbn" className="block text-sm font-medium text-gray-600">ISBN</label>
+                                    <input
+                                        type="text"
+                                        id="isbn"
+                                        name="isbn"
+                                        value={formData.isbn}
+                                        onChange={handleInputChange}
+                                        className="w-full p-2 mt-1 border rounded-md"
+                                    />
+                                </div>
+                            )}
+                            {activeTab === 'events' && (
+                                <>
+                                    <div className="mt-4">
+                                        <label htmlFor="location" className="block text-sm font-medium text-gray-600">Location</label>
+                                        <input
+                                            type="text"
+                                            id="location"
+                                            name="location"
+                                            value={formData.location}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 mt-1 border rounded-md"
+                                        />
+                                    </div>
+                                    <div className="mt-4">
+                                        <label htmlFor="date" className="block text-sm font-medium text-gray-600">Date</label>
+                                        <input
+                                            type="date"
+                                            id="date"
+                                            name="date"
+                                            value={formData.date}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 mt-1 border rounded-md"
+                                        />
+                                    </div>
+                                    {/*
+                                    <div className="mt-4">
+                                        <label htmlFor="description" className="block text-sm font-medium text-gray-600">Description</label>
+                                        <input
+                                            type="text"
+                                            id="description"
+                                            name="description"
+                                            value={formData.description}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 mt-1 border rounded-md"
+                                        />
+                                    </div>
+                                    */}
+                                </>
+                            )}
+                            <div className="mt-6 flex justify-end">
+                                <button
+                                    onClick={handleSubmit}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-md"
+                                >
+                                    {formData.id ? 'Save Changes' : 'Add Item'}
+                                </button>
+                                <button
+                                    onClick={() => setShowModal(false)}
+                                    className="bg-gray-500 text-white px-4 py-2 rounded-md ml-2"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

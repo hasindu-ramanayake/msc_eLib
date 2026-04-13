@@ -34,9 +34,13 @@ public interface BorrowRepository extends JpaRepository<Borrow, UUID> {
             """, nativeQuery = true)
     long countUnderDueBorrows(UUID userId);
 
+    long countBorrowsByItemIdAndIsReturned(UUID itemId, Boolean isReturned);
+
     @Query("SELECT b FROM Borrow b WHERE b.userId = :userId AND b.isReturned = false AND b.dueDate < CURRENT_DATE")
     List<Borrow> getOverDueBorrows(UUID userId);
 
     @Query("SELECT b FROM Borrow b WHERE b.userId = :userId AND (b.isReturned = true AND b.dueDate > b.returnedDate)")
     List<Borrow> getUnderDueBorrows(UUID userId);
+
+
 }
