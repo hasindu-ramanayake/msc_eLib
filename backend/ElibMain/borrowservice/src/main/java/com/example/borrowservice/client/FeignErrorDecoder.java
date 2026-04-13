@@ -33,7 +33,7 @@ public class FeignErrorDecoder implements ErrorDecoder {
             String body = new String(response.body().asInputStream().readAllBytes(), StandardCharsets.UTF_8);
             JsonNode json = new ObjectMapper().readTree(body);
             return json.get("message").asString();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             return "Error reading response body";
         }
     }

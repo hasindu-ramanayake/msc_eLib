@@ -36,15 +36,15 @@ const Header = () => {
           <a href="/library-info" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
             LibraryInfo
           </a>
-          {/* <a href="#" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
-            Event Calender
-          </a> */}
-          {/* <a href="#" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
-            Room Reservation
-          </a> */}
-          {/* <a href="#" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
-            My Books
-          </a> */}
+          {/* Add the "Manage Items" Button */}
+          <Link to="/staff-page" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
+            Manage Items
+          </Link>
+          {user && (
+            <Link to="/my-loans" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
+              My Books
+            </Link>
+          )}
 
           <div className="pl-4 ml-2 border-l border-gray-200 flex items-center space-x-4 relative">
             {user && <NotificationBell />}
@@ -133,6 +133,9 @@ const Header = () => {
           <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50">Home</Link>
           <Link to="/search" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50">Search</Link>
           <a href="/library-info" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50">LibraryInfo</a>
+          {user && (
+            <Link to="/my-loans" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50">My Books</Link>
+          )}
           
           <div className="pt-4 border-t border-gray-200">
             {user ? (
