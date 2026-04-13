@@ -26,6 +26,7 @@ public class BorrowService {
     private final NewBorrowMapper newBorrowMapper;
     private final ItemService itemService;
     private final UserService userService;
+    private final CreditService creditService;
     private final RabbitTemplate rabbitTemplate;
 
     public List<BorrowDto> getAllBorrows() {
@@ -56,21 +57,25 @@ public class BorrowService {
 
         var user = userService.getUserById(auth, borrow.getUserId());
 
+        long creditScore = creditService.getCreditScore(borrow.getUserId());
+
+        if(creditScore < 20) throw new BadRequestException("Credit rating is below 20");
+
         borrow.setCheckOutDate(Date.from(Instant.now()));
 
-        NotificationEventDto notification = generateNotification(borrow.getUserId());
+        NotificationEventDto notification = generateNotification(borrow.getUserId(), item);
 
-//        rabbitTemplate.convertAndSend(notification);
+        rabbitTemplate.convertAndSend(notification);
 
         return borrowMapper.toDto(borrowRepository.save(borrow));
     }
 
-    private NotificationEventDto generateNotification(UUID userId){
+    private NotificationEventDto generateNotification(UUID userId, ItemDto item){
         var dto = new NotificationEventDto();
-        dto.setEventType(EventType.ITEM_DUE_SOON);
+        dto.setEventType(EventType.WAITLIST_AVAILABLE);
         dto.setUserId(userId);
         dto.setPayload(Map.of(
-
+                "itemTitle", item.getTitle()
         ));
         dto.setOccuredAt(Date.from(Instant.now()));
         return dto;
