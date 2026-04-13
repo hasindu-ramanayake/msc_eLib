@@ -12,6 +12,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -23,17 +24,18 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    public String generateToken(String email, String role) {
-        return generate(email, role, expiration);
+    public String generateToken(String email, String role, UUID userId) {
+        return generate(email, role, userId, expiration);
     }
 
-    public String generateRefreshToken(String email, String role) {
-        return generate(email, role, expiration * 7); // 7 days
+    public String generateRefreshToken(String email, String role, UUID userId) {
+        return generate(email, role, userId, expiration * 7); // 7 days
     }
 
-    private String generate(String email, String role, long time) {
+    private String generate(String email, String role, UUID userId, long time) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
+        claims.put("userId", userId.toString());
         
         Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         
@@ -61,5 +63,15 @@ public class JwtUtil {
                 .parseSignedClaims(token)
                 .getPayload()
                 .get("role", String.class);
+    }
+
+    public UUID extractUserId(String token) {
+        String userId = Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("userId", String.class);
+        return userId != null ? UUID.fromString(userId) : null;
     }
 }

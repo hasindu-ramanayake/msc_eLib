@@ -100,10 +100,16 @@ services:
       SERVER_PORT: 8081
       SPRING_DATASOURCE_URL: jdbc:postgresql://user_db:5432/user_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: admin123
     depends_on:
       user_db:
         condition: service_healthy
       eureka-server:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
 
   apigateway:

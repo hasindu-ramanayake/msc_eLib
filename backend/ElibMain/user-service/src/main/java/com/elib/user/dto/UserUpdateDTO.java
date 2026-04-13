@@ -9,6 +9,7 @@ public record UserUpdateDTO(
     String lastName,
     String email,
     String password,
+    String phoneNumber,
     Role role,
     Set<NotificationPreference> notificationPreferences,
     AddressDTO address
