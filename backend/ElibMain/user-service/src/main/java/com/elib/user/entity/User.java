@@ -39,6 +39,9 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Column
+    private String phoneNumber;
+
     @ElementCollection(targetClass = NotificationPreference.class)
     @CollectionTable(name = "user_notification_preferences", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)

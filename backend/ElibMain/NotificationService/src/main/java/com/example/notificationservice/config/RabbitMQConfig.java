@@ -21,11 +21,20 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.routing-key}")
     private String routingKey;
 
+    @Value("${rabbitmq.user.queue}") // #JF
+    private String userQueue; // #JF
+
     // Déclare la queue — RabbitMQ la crée automatiquement si elle n'existe pas
     @Bean
     public Queue notificationQueue() {
         return new Queue(queue, true); // true = durable, survive au redémarrage
     }
+
+    // #JF — user lifecycle events queue published by user-service
+    @Bean
+    public Queue userEventQueue() { // #JF
+        return new Queue(userQueue, true); // #JF
+    } // #JF
 
     // Déclare l'exchange de type Topic
     @Bean

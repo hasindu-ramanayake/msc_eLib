@@ -19,6 +19,7 @@ const EditProfile = () => {
         firstName: '',
         lastName: '',
         email: '',
+        phoneNumber: '',
         address: {
             addressLine1: '',
             addressLine2: '',
@@ -45,6 +46,7 @@ const EditProfile = () => {
                         firstName: data.firstName || '',
                         lastName: data.lastName || '',
                         email: data.email || '',
+                        phoneNumber: data.phoneNumber || '',
                         address: {
                             addressLine1: data.address?.addressLine1 || '',
                             addressLine2: data.address?.addressLine2 || '',
@@ -175,6 +177,18 @@ const EditProfile = () => {
                                         name="lastName"
                                         value={formData.lastName}
                                         onChange={handleInputChange}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                    <input
+                                        type="tel"
+                                        name="phoneNumber"
+                                        value={formData.phoneNumber}
+                                        onChange={handleInputChange}
+                                        placeholder="+353 8X XXX XXXX"
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
                                         required
                                     />
