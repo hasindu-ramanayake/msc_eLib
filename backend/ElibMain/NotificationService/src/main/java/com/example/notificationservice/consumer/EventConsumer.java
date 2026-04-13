@@ -24,4 +24,11 @@ public class EventConsumer {
                 event.getEventType(), event.getUserId(), event.getEventId());
         notificationService.handleEvent(event);
     }
-}
+
+    // #JF — listens to user-service registration events on the dedicated user.events queue
+    @RabbitListener(queues = "${rabbitmq.user.queue}") // #JF
+    public void onUserEvent(NotificationEventDTO event) {
+        log.info("User event received via RabbitMQ: type={} userId={} eventId={}",
+                event.getEventType(), event.getUserId(), event.getEventId());
+        notificationService.handleEvent(event);
+    }

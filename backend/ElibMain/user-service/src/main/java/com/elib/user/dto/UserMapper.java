@@ -38,6 +38,7 @@ public class UserMapper {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),
+                user.getPhoneNumber(),
                 user.getRole(),
                 user.getNotificationPreferences(),
                 toAddressDTO(user.getAddress())
@@ -51,6 +52,7 @@ public class UserMapper {
                 .firstName(dto.firstName())
                 .lastName(dto.lastName())
                 .email(dto.email())
+                .phoneNumber(dto.phoneNumber())
                 .role(dto.role())
                 .notificationPreferences(dto.notificationPreferences())
                 .address(toAddressEntity(dto.address()))
@@ -64,6 +66,7 @@ public class UserMapper {
                 .lastName(dto.lastName())
                 .email(dto.email())
                 .password(dto.password())
+                .phoneNumber(dto.phoneNumber())
                 .role(dto.role()) // Added to map the role from the registration request
                 .notificationPreferences(dto.notificationPreferences()) // Added to fix null preferences on registration
                 .address(toAddressEntity(dto.address()))

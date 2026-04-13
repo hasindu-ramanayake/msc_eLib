@@ -14,6 +14,7 @@ import EditProfile from './components/EditProfile';
 import AdminPage from './components/AdminPage';
 import { Navigate } from 'react-router-dom';
 import NotificationsPage from './pages/NotificationsPage';
+import StaffPage from './components/StaffPage';
 
 /**
  * AdminProtectedRoute Component
@@ -26,6 +27,22 @@ const AdminProtectedRoute = ({ children }) => {
     if (loading) return null; // Or a loading spinner
 
     if (!user || user.role !== 'ADMIN') {
+        return <Navigate to="/" replace />;
+    }
+
+    return children;
+};
+
+/**
+ * StaffProtectedRoute Component
+ * Allows users with 'STAFF' or 'ADMIN' roles to access the children components.
+ */
+const StaffProtectedRoute = ({ children }) => {
+    const { user, loading } = useAuth();
+
+    if (loading) return null;
+
+    if (!user || (user.role !== 'STAFF' && user.role !== 'ADMIN')) {
         return <Navigate to="/" replace />;
     }
 
@@ -91,6 +108,14 @@ function App() {
                             <AdminProtectedRoute>
                                 <AdminPage />
                             </AdminProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/staff"
+                        element={
+                            <StaffProtectedRoute>
+                                <StaffPage />
+                            </StaffProtectedRoute>
                         }
                     />
                 </Routes>

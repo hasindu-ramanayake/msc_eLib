@@ -39,8 +39,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         // Check if user was just created (within the last 30 seconds) to determine if it's a registration or a login
         boolean isNewUser = ChronoUnit.SECONDS.between(user.getCreatedAt(), LocalDateTime.now()) < 30;
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getRole().name());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getRole().name(), user.getId());
 
         String targetUrl;
         if (isNewUser) {

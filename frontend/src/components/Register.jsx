@@ -7,6 +7,7 @@ const Register = () => {
     firstName: '',
     lastName: '',
     email: '',
+    phoneNumber: '',
     password: '',
     confirmPassword: '',
     addressLine1: '',
@@ -61,6 +62,7 @@ const Register = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
+        phoneNumber: formData.phoneNumber,
         password: formData.password,
         address: {
           addressLine1: formData.addressLine1,
@@ -196,6 +198,21 @@ const Register = () => {
                       required
                       value={formData.email}
                       onChange={handleChange}
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors sm:text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                  <div className="mt-1">
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      required
+                      value={formData.phoneNumber}
+                      onChange={handleChange}
+                      placeholder="+353 8X XXX XXXX"
                       className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors sm:text-sm"
                     />
                   </div>

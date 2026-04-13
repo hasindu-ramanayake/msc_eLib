@@ -9,6 +9,7 @@ public record UserRegistrationDTO(
     String lastName,
     String email,
     String password,
+    String phoneNumber,
     Role role, // Added role field to allow admin/staff registration via Postman
     Set<NotificationPreference> notificationPreferences, // Added to fix null preferences on registration
     AddressDTO address

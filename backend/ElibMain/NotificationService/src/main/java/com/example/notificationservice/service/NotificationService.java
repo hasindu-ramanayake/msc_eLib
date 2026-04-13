@@ -39,7 +39,8 @@ public class NotificationService {
                     com.example.notificationservice.dto.EventType.ITEM_DUE_SOON,        NotificationType.REMINDER,
                     com.example.notificationservice.dto.EventType.ITEM_OVERDUE,         NotificationType.OVERDUE,
                     com.example.notificationservice.dto.EventType.WAITLIST_AVAILABLE,   NotificationType.WAITLIST_AVAILABLE,
-                    com.example.notificationservice.dto.EventType.CREDIT_UPDATED,       NotificationType.CREDIT_LOW
+                    com.example.notificationservice.dto.EventType.CREDIT_UPDATED,       NotificationType.CREDIT_LOW,
+                    com.example.notificationservice.dto.EventType.USER_REGISTERED,      NotificationType.WELCOME // #JF
             );
 
     // Central orchestration method
@@ -70,7 +71,8 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public List<com.example.notificationservice.entity.Notification> getNotificationsForUser(UUID userId) {
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        return notificationRepository.findByUserIdAndChannelOrderByCreatedAtDesc(
+                userId, NotificationChannel.IN_APP);
     }
 
     // -------------------------------------------------------------------------

@@ -71,6 +71,16 @@ const Header = () => {
                       Edit Profile
                     </Link>
 
+                    {(user.role === 'ADMIN' || user.role === 'STAFF') && (
+                      <Link
+                        to="/staff"
+                        onClick={() => setShowDropdown(false)}
+                        className="block px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 transition-colors"
+                      >
+                        Staff Dashboard
+                      </Link>
+                    )}
+
                     {user.role === 'ADMIN' && (
                       <Link
                         to="/admin"
@@ -137,6 +147,9 @@ const Header = () => {
                   </div>
                 </div>
                 <Link to="/edit-profile" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50">Edit Profile</Link>
+                {(user.role === 'ADMIN' || user.role === 'STAFF') && (
+                  <Link to="/staff" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-base font-medium text-blue-700 hover:text-blue-800 hover:bg-blue-50">Staff Dashboard</Link>
+                )}
                 {user.role === 'ADMIN' && (
                   <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-base font-medium text-indigo-700 hover:text-indigo-800 hover:bg-indigo-50">Admin Dashboard</Link>
                 )}
