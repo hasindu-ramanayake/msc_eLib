@@ -6,7 +6,8 @@ import com.example.itemservice.service.RabbitMQService;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import lombok.RequiredArgsConstructor;
-import org. springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
 import java.io.InputStreamReader;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.*;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ItemCsvLoader {
@@ -26,23 +28,23 @@ public class ItemCsvLoader {
     @PostConstruct
     public void loadCsv() {
 
-        //Comment out for testing
-        if (itemRepository.count() > 0) {
-            return;
-        }
+        // Comment out for testing
+        // if (itemRepository.count() > 0) {
+        // return;
+        // }
 
         try (Reader reader = new InputStreamReader(
                 getClass().getClassLoader().getResourceAsStream("books.csv"),
                 StandardCharsets.UTF_8);
-             CSVReader csvReader = new CSVReaderBuilder(reader)
-                     .withSkipLines(1)
-                     .build()) {
+                CSVReader csvReader = new CSVReaderBuilder(reader)
+                        .withSkipLines(1)
+                        .build()) {
 
             List<String[]> rows = csvReader.readAll();
             List<Item> items = new ArrayList<>();
 
             for (String[] row : rows) {
-
+                log.info("Processing row: {}", row);
                 Item item = new Item();
 
                 item.setIsbn13(row[0]);
@@ -54,9 +56,9 @@ public class ItemCsvLoader {
                 item.setThumbnail(row[6]);
                 item.setDescription(row[7]);
                 item.setPublishedYear(row[8]);
-//                item.setAverageRating(Double.parseDouble(row[9]));
-//                item.setNumPages(Integer.parseInt(row[10]));
-//                item.setRatingsCount(Integer.parseInt(row[11]));
+                // item.setAverageRating(Double.parseDouble(row[9]));
+                // item.setNumPages(Integer.parseInt(row[10]));
+                // item.setRatingsCount(Integer.parseInt(row[11]));
                 item.setLanguage(row[12]);
                 item.setAge(row[13]);
 

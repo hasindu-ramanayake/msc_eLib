@@ -15,6 +15,7 @@ const AdminPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [deleteLoading, setDeleteLoading] = useState(null);
+    const [repopulateLoading, setRepopulateLoading] = useState(false);
 
     useEffect(() => {
         console.log('[AdminPage] Mount. User data:', user);
@@ -96,6 +97,30 @@ const AdminPage = () => {
         }
     };
 
+    const handleRepopulateItems = async () => {
+        if (!window.confirm('This will trigger a CSV load into the item database. Proceed?')) return;
+        setRepopulateLoading(true);
+        try {
+            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+            const response = await fetch(`${baseUrl}/api/v1/item/load-csv`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${user.token}`
+                }
+            });
+            if (response.ok) {
+                alert('CSV load started! Items are being populated in the background. Wait a few seconds, then click Refresh List.');
+            } else {
+                const text = await response.text();
+                alert(`Failed to repopulate items: ${text || response.status}`);
+            }
+        } catch (err) {
+            alert('An error occurred while repopulating items.');
+        } finally {
+            setRepopulateLoading(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -116,12 +141,28 @@ const AdminPage = () => {
                             <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">User Management</h1>
                             <p className="mt-1 text-gray-500">View and manage all registered users in the system.</p>
                         </div>
-                        <div className="mt-4 md:mt-0">
+                        <div className="mt-4 md:mt-0 flex gap-3">
                             <button
                                 onClick={fetchUsers}
                                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                             >
                                 Refresh List
+                            </button>
+                            <button
+                                id="repopulate-items-btn"
+                                onClick={handleRepopulateItems}
+                                disabled={repopulateLoading}
+                                className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors ${repopulateLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                            >
+                                {repopulateLoading ? (
+                                    <>
+                                        <svg className="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        </svg>
+                                        Repopulating...
+                                    </>
+                                ) : 'Repopulate Items'}
                             </button>
                         </div>
                     </div>

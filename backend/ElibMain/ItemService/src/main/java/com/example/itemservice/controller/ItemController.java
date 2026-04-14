@@ -1,12 +1,15 @@
 package com.example.itemservice.controller;
 
 import com.example.itemservice.dto.ItemDto;
+import com.example.itemservice.loader.ItemCsvLoader;
 import com.example.itemservice.service.ItemService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,6 +17,7 @@ import java.util.UUID;
 public class ItemController {
 
     private final ItemService itemService;
+    private final ItemCsvLoader itemCsvLoader;
 
     @PostMapping
     public ItemDto createItem(@RequestBody ItemDto dto) {
@@ -71,5 +75,18 @@ public class ItemController {
     @PatchMapping("/{id}/decrease")
     public void decreaseStock(@PathVariable UUID id, @RequestParam int quantity) {
         itemService.decreaseStock(id, quantity);
+    }
+
+    @PostMapping("/load-csv")
+    public ResponseEntity<String> loadCsv() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                itemCsvLoader.loadCsv();
+                System.out.println("[loadCsv] CSV load completed successfully.");
+            } catch (Exception e) {
+                System.err.println("[loadCsv] CSV load failed: " + e.getMessage());
+            }
+        });
+        return ResponseEntity.accepted().body("CSV load started in background. Check server logs for completion.");
     }
 }
