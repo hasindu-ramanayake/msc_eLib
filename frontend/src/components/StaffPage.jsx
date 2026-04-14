@@ -11,31 +11,23 @@ const StaffPage = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('books'); // Default to 'books' tab
     const [items, setItems] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedItemId, setSelectedItemId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [deleteLoading, setDeleteLoading] = useState(null);
-    const [showModal, setShowModal] = useState(false); // To control modal visibility
-    const [formData, setFormData] = useState({
-        id: null,
-        title: '',
-        language: 'English',
-        publishedYear: new Date().getFullYear(),
-        isbn: '',
-        location: '',
-        date: '',
-        description: ''
-    });
+    const [showConfirmSave, setShowConfirmSave] = useState(false);
+    const [editItem, setEditItem] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+
+
+    const API_BASE = "http://localhost:8765";
 
     const mockData = {
+        books: [],
         events: [
             { id: 1, title: 'Event 1', location: 'Main Hall', date: 'Oct 20, 2026', description: 'Event description 1' },
             { id: 2, title: 'Event 2', location: 'Tech Lab 2', date: 'Oct 26, 2026', description: 'Event description 2' },
             { id: 3, title: 'Event 3', location: 'Reading Room B', date: 'Oct 28, 2026', description: 'Event description 3' },
-        ],
-        books: [
-            { id: 1, title: 'The Great Gatsby', category: 'Book', language: 'English', publishedYear: 2020, isbn: '9780743273565' },
-            { id: 2, title: '1984', category: 'Book', language: 'English', publishedYear: 2021, isbn: '9780451524935' },
-            { id: 3, title: 'To Kill a Mockingbird', category: 'Book', language: 'English', publishedYear: 2022, isbn: '9780061120084' },
         ],
         games: [
             { id: 1, title: 'Chess', category: 'Game', language: 'English', publishedYear: 2020 },
@@ -58,87 +50,150 @@ const StaffPage = () => {
         return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
 
-    // Function to simulate data fetching (mock data)
-    const fetchItems = (tab) => {
+    useEffect(() => {
+        fetchItems(activeTab);
+    }, []);
+
+    const fetchItems = async (tab) => {
         setLoading(true);
+        setError(null);
+
         try {
-            // Get data based on active tab
-            const data = mockData[tab];
-            setTimeout(() => {
-                setItems(data);
-                setLoading(false);
-            }, 1000); // Simulate network delay
+            // BOOKS come from backend
+            if (tab === 'books') {
+                const response = await fetch(`${API_BASE}/api/v1/item`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) throw new Error("Failed to fetch books");
+
+                const data = await response.json();
+
+                const normalized = data.map(item => ({
+                    ...item,
+                    isbn: item.isbn13 || ''
+                }));
+
+                setItems(normalized);
+            }
+            else {
+                // EVENTS / GAMES / MOVIES still mock data
+                setTimeout(() => {
+                    setItems(mockData[tab] || []);
+                }, 300);
+            }
+
         } catch (err) {
-            setError('An error occurred while loading items.');
+            console.error(err);
+            setError("Failed to load items");
+        } finally {
             setLoading(false);
         }
     };
 
+
     // Handle deleting an item
-    const handleDeleteItem = async (itemId) => {
-        if (!window.confirm(`Are you sure you want to delete this item? This action cannot be undone.`)) {
-            return;
+    const handleDeleteItem = async (id) => {
+        if (!window.confirm("Delete this item?")) return;
+
+        if (activeTab === 'books') {
+            await fetch(`${API_BASE}/api/v1/item/${id}`, {
+                method: 'DELETE'
+            });
         }
 
-        setDeleteLoading(itemId);
+        setItems(items.filter(i => i.id !== id));
+    };
+
+    const handleSaveClick = () => {
+        setShowConfirmSave(true);
+    };
+
+    const confirmSave = async () => {
         try {
-            // In a real scenario, call the backend to delete the item
-            setItems(items.filter(item => item.id !== itemId));
+            // NEW ITEM (CREATE)
+            if (!items.find(i => i.id === editItem.id)) {
+                const response = await fetch(`${API_BASE}/api/v1/item`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(editItem)
+                });
+
+                if (!response.ok) throw new Error("Failed to create item");
+
+                const savedItem = await response.json();
+
+                setItems(prev => [...prev, savedItem]);
+            }
+
+            // EXISTING ITEM (UPDATE)
+            else {
+                const response = await fetch(`${API_BASE}/api/v1/item/${editItem.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(editItem)
+                });
+
+                if (!response.ok) throw new Error("Failed to update item");
+
+                const updated = await response.json();
+
+                setItems(prev =>
+                    prev.map(item =>
+                        item.id === updated.id ? updated : item
+                    )
+                );
+            }
+
+            setShowConfirmSave(false);
+            setEditItem(null);
+
         } catch (err) {
-            alert('An error occurred while attempting to delete the item.');
-        } finally {
-            setDeleteLoading(null);
+            console.error(err);
+            setError("Failed to save item");
         }
     };
 
-    // Handle editing an item
-    const handleEditItem = (itemId) => {
-        const item = items.find(i => i.id === itemId);
-        setFormData({ ...item });
-        setShowModal(true); // Open the modal to update the item
+    const cancelSave = () => {
+        setShowConfirmSave(false);
+    };
+
+    const handleViewEditChange = (e) => {
+        const { name, value } = e.target;
+
+        setEditItem(prev => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
     // Handle adding a new item
     const handleAddItem = () => {
-        setFormData({
-            id: null,
+        setEditItem({
+            id: null, // temporary id
             title: '',
+            author: '',
             language: '',
-            publishedYear: new Date().getFullYear(),
-            isbn: activeTab === 'books' ? '' : '',
-            location: activeTab === 'events' ? '' : '',
-            date: activeTab === 'events' ? '' : '',
-            description: activeTab === 'events' ? '' : '',
+            publishedYear: '',
+            isbn10: '',
+            isbn13: '',
+            categories: '',
+            age: '',
+            totalStock: '',
+            location: '',
+            date: '',
+            description: ''
         });
-        setShowModal(true); // Open the modal to add a new item
-    };
 
-    // Handle form input changes
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
+        setSelectedItemId(null);
     };
-
-    // Handle form submission (Add or Update)
-    const handleSubmit = () => {
-        if (formData.id) {
-            // Update item
-            setItems(items.map((item) => (item.id === formData.id ? formData : item)));
-        } else {
-            // Add new item
-            const newItem = { ...formData, id: items.length + 1 };
-            setItems([...items, newItem]);
-        }
-        setShowModal(false); // Close the modal
-    };
-
-    // On initial load, fetch the items for the default 'books' tab
-    useEffect(() => {
-        fetchItems('books');
-    }, []);
 
     if (loading) {
         return (
@@ -147,6 +202,18 @@ const StaffPage = () => {
             </div>
         );
     }
+
+    const filteredItems = items.filter((item) => {
+        const query = searchQuery.toLowerCase().trim();
+
+        if (!query) return true;
+
+        const idMatch = item.id?.toString().includes(query);
+        const titleMatch = item.title?.toLowerCase().includes(query);
+        const isbnMatch = item.isbn?.toLowerCase().includes(query);
+
+        return idMatch || titleMatch || isbnMatch;
+    });
 
     return (
         <div className="min-h-screen bg-gray-50 pb-12 pt-24">
@@ -206,20 +273,25 @@ const StaffPage = () => {
                     </div>
                 )}
 
+                {/* SEARCH BAR */}
+                <div className="mb-4">
+                    <input
+                        type="text"
+                        placeholder="Search items..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full p-2 border rounded-md"
+                    />
+                </div>
+
                 {/* Item Management Table */}
                 <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
+                        <table className="min-w-full table-fixed divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Item Id</th>
                                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Title</th>
-                                    {activeTab === 'books' && (
-                                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Language</th>
-                                    )}
-                                    {activeTab === 'books' && (
-                                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Published Year</th>
-                                    )}
                                     {(activeTab === 'games' || activeTab === 'movies') && (
                                         <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Release Year</th>
                                     )}
@@ -243,15 +315,18 @@ const StaffPage = () => {
                                         </td>
                                     </tr>
                                 ) : (
-                                    items.map((item) => (
+                                    filteredItems.map((item) => (
                                         <tr key={item.id} className="hover:bg-blue-50/30 transition-colors duration-150">
                                             <td className="px-6 py-4 whitespace-nowrap">{item.id}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">{item.title}</td>
-                                            {activeTab === 'books' && (
-                                                <td className="px-6 py-4 whitespace-nowrap">{item.language}</td>
-                                            )}
-                                            {activeTab !== 'events' && (
-                                                <td className="px-6 py-4 whitespace-nowrap">{item.publishedYear}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="truncate max-w-[200px]">
+                                                    {item.title}
+                                                </div>
+                                            </td>
+                                            {(activeTab === 'games' || activeTab === 'movies') && (
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    {item.publishedYear}
+                                                </td>
                                             )}
                                             {activeTab === 'books' && (
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.isbn}</td>
@@ -264,10 +339,10 @@ const StaffPage = () => {
                                             )}
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <button
-                                                    onClick={() => handleEditItem(item.id)}
+                                                    onClick={() => setEditItem({ ...item })}
                                                     className="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-all"
                                                 >
-                                                    Edit
+                                                    View / Edit
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteItem(item.id)}
@@ -284,127 +359,158 @@ const StaffPage = () => {
                     </div>
                 </div>
 
-                {/* Add/Edit Modal */}
-                {showModal && (
+                {editItem && (
                     <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50 z-50">
-                        <div className="bg-white p-8 rounded-lg shadow-lg w-96">
+                        <div className="bg-white p-8 rounded-lg shadow-lg w-[600px] max-h-[80vh] overflow-y-auto">
+
                             <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                                {formData.id ? 'Edit Item' : 'Add New Item'}
+                                Book Details
                             </h3>
 
-                            {/* Form Inputs */}
-                            <div>
-                                <label htmlFor="title" className="block text-sm font-medium text-gray-600">Title</label>
+                            {/* Thumbnail */}
+                            {editItem.thumbnail && (
+                                <img
+                                    src={editItem.thumbnail}
+                                    alt={editItem.title}
+                                    className="w-32 h-auto mb-4 rounded"
+                                />
+                            )}
+
+                            <div className="space-y-2 text-sm text-gray-700">
+
+                                <p className="mt-3">
+                                    <strong>Title:</strong>
+                                </p>
                                 <input
-                                    type="text"
-                                    id="title"
                                     name="title"
-                                    value={formData.title}
-                                    onChange={handleInputChange}
-                                    className="w-full p-2 mt-1 border rounded-md"
+                                    value={editItem?.title || ''}
+                                    onChange={handleViewEditChange}
+                                    className="w-full border p-2 rounded"
+                                />
+                                <p className="mt-3">
+                                    <strong>Author:</strong>
+                                </p>
+                                <input
+                                    name="author"
+                                    value={editItem?.author || ''}
+                                    onChange={handleViewEditChange}
+                                    className="w-full border p-2 rounded"
+                                />
+                                <p className="mt-3">
+                                    <strong>Language:</strong>
+                                </p>
+                                <input
+                                    name="language"
+                                    value={editItem?.language || ''}
+                                    onChange={handleViewEditChange}
+                                    className="w-full border p-2 rounded"
+                                />
+                                <p className="mt-3">
+                                    <strong>Published Year:</strong>
+                                </p>
+                                <input
+                                    name="publishedYear"
+                                    value={editItem?.publishedYear || ''}
+                                    onChange={handleViewEditChange}
+                                    className="w-full border p-2 rounded"
+                                />
+                                <p className="mt-3">
+                                    <strong>ISBN-10:</strong>
+                                </p>
+                                <input
+                                    name="isbn10"
+                                    value={editItem?.isbn10 || ''}
+                                    onChange={handleViewEditChange}
+                                    className="w-full border p-2 rounded"
+                                />
+                                <p className="mt-3">
+                                    <strong>ISBN-13:</strong>
+                                </p>
+                                <input
+                                    name="isbn13"
+                                    value={editItem?.isbn13 || ''}
+                                    onChange={handleViewEditChange}
+                                    className="w-full border p-2 rounded"
+                                />
+                                <p className="mt-3">
+                                    <strong>Genres:</strong>
+                                </p>
+                                <input
+                                    name="categories"
+                                    value={editItem?.categories || ''}
+                                    onChange={handleViewEditChange}
+                                    className="w-full border p-2 rounded"
+                                />
+                                <p className="mt-3">
+                                    <strong>Age:</strong>
+                                </p>
+                                <input
+                                    name="age"
+                                    value={editItem?.age || ''}
+                                    onChange={handleViewEditChange}
+                                    className="w-full border p-2 rounded"
+                                />
+                                <p className="mt-3">
+                                    <strong>Total Stock:</strong>
+                                </p>
+                                <input
+                                    name="totalStock"
+                                    value={editItem?.totalStock || ''}
+                                    onChange={handleViewEditChange}
+                                    className="w-full border p-2 rounded"
+                                />
+                                <p className="mt-3">
+                                    <strong>Description:</strong>
+                                </p>
+
+                                <textarea
+                                    name="description"
+                                    value={editItem?.description || ''}
+                                    onChange={handleViewEditChange}
+                                    className="w-full mt-1 p-2 border rounded-md text-gray-700 leading-relaxed"
+                                    rows={5}
                                 />
                             </div>
-                            {activeTab === 'books' && (
-                              <div className="mt-4">
-                                  <label htmlFor="language" className="block text-sm font-medium text-gray-600">Language</label>
-                                  <input
-                                      type="text"
-                                      id="language"
-                                      name="language"
-                                      value={formData.language}
-                                      onChange={handleInputChange}
-                                      className="w-full p-2 mt-1 border rounded-md"
-                                  />
-                              </div>
-                            )}
-                            {activeTab === 'books' && (
-                              <div className="mt-4">
-                                  <label htmlFor="publishedYear" className="block text-sm font-medium text-gray-600">Published Year</label>
-                                  <input
-                                      type="number"
-                                      id="publishedYear"
-                                      name="publishedYear"
-                                      value={formData.publishedYear}
-                                      onChange={handleInputChange}
-                                      className="w-full p-2 mt-1 border rounded-md"
-                                  />
-                              </div>
-                            )}
-                            {(activeTab === 'games' || activeTab === 'movies') && (
-                              <div className="mt-4">
-                                  <label htmlFor="publishedYear" className="block text-sm font-medium text-gray-600">Release Year</label>
-                                  <input
-                                      type="number"
-                                      id="publishedYear"
-                                      name="publishedYear"
-                                      value={formData.publishedYear}
-                                      onChange={handleInputChange}
-                                      className="w-full p-2 mt-1 border rounded-md"
-                                  />
-                              </div>
-                            )}
-                            {activeTab === 'books' && (
-                                <div className="mt-4">
-                                    <label htmlFor="isbn" className="block text-sm font-medium text-gray-600">ISBN</label>
-                                    <input
-                                        type="text"
-                                        id="isbn"
-                                        name="isbn"
-                                        value={formData.isbn}
-                                        onChange={handleInputChange}
-                                        className="w-full p-2 mt-1 border rounded-md"
-                                    />
-                                </div>
-                            )}
-                            {activeTab === 'events' && (
-                                <>
-                                    <div className="mt-4">
-                                        <label htmlFor="location" className="block text-sm font-medium text-gray-600">Location</label>
-                                        <input
-                                            type="text"
-                                            id="location"
-                                            name="location"
-                                            value={formData.location}
-                                            onChange={handleInputChange}
-                                            className="w-full p-2 mt-1 border rounded-md"
-                                        />
-                                    </div>
-                                    <div className="mt-4">
-                                        <label htmlFor="date" className="block text-sm font-medium text-gray-600">Date</label>
-                                        <input
-                                            type="date"
-                                            id="date"
-                                            name="date"
-                                            value={formData.date}
-                                            onChange={handleInputChange}
-                                            className="w-full p-2 mt-1 border rounded-md"
-                                        />
-                                    </div>
-                                    {/*
-                                    <div className="mt-4">
-                                        <label htmlFor="description" className="block text-sm font-medium text-gray-600">Description</label>
-                                        <input
-                                            type="text"
-                                            id="description"
-                                            name="description"
-                                            value={formData.description}
-                                            onChange={handleInputChange}
-                                            className="w-full p-2 mt-1 border rounded-md"
-                                        />
-                                    </div>
-                                    */}
-                                </>
-                            )}
-                            <div className="mt-6 flex justify-end">
+
+                            <div className="mt-6 flex justify-end gap-2">
                                 <button
-                                    onClick={handleSubmit}
+                                    onClick={handleSaveClick}
                                     className="bg-blue-600 text-white px-4 py-2 rounded-md"
                                 >
-                                    {formData.id ? 'Save Changes' : 'Add Item'}
+                                    Save Changes
                                 </button>
                                 <button
-                                    onClick={() => setShowModal(false)}
-                                    className="bg-gray-500 text-white px-4 py-2 rounded-md ml-2"
+                                    onClick={() => {
+                                        setSelectedItemId(null);
+                                        setEditItem(null);
+                                    }}
+                                    className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {showConfirmSave && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[60]">
+                        <div className="bg-white p-6 rounded-lg shadow-lg w-[400px]">
+                            <h2 className="text-lg font-semibold mb-4">
+                                Are you sure you want to save changes?
+                            </h2>
+
+                            <div className="flex justify-end gap-2">
+                                <button
+                                    onClick={confirmSave}
+                                    className="bg-green-600 text-white px-4 py-2 rounded"
+                                >
+                                    Yes
+                                </button>
+
+                                <button
+                                    onClick={cancelSave}
+                                    className="bg-gray-500 text-white px-4 py-2 rounded"
                                 >
                                     Cancel
                                 </button>
