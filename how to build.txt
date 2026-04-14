@@ -14,3 +14,11 @@ Search Service: http://localhost:8080 (Internal: http://search-service:8080)
 Notification Service: http://localhost:8082
 Eureka Dashboard: http://localhost:8761
 Elasticsearch: http://localhost:9200
+
+Dummy Logging Data
+
+ADMIN	admin@elib.com	Admin@123
+STAFF	staff@elib.com	Staff@123
+CUSTOMER	alice.murphy@example.com	Customer@123
+CUSTOMER	bob.obrien@example.com	Customer@123
+CUSTOMER	clara.walsh@example.com	Customer@123

@@ -47,6 +47,7 @@ public class GatewaySecurityConfig {
                         .requestMatchers("/login/oauth2/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/eureka/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
                         // Admin Only endpoints
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/users").hasRole("ADMIN")
