@@ -13,6 +13,7 @@ COPY NotificationService/pom.xml NotificationService/
 COPY EventService/pom.xml EventService/
 COPY borrowservice/pom.xml borrowservice/
 COPY ItemService/pom.xml ItemService/
+COPY BorrowBatchService/pom.xml BorrowBatchService/
 
 # Build dependencies for ApiGateway
 RUN mvn install -N && mvn -pl ApiGateway -am dependency:go-offline

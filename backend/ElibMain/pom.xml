@@ -29,6 +29,7 @@
     <module>borrowservice</module>
     <module>user-service</module>
     <module>ItemService</module>
+    <module>BorrowBatchService</module>
   </modules>
 
   <dependencies>
