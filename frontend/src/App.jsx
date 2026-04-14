@@ -15,6 +15,7 @@ import AdminPage from './components/AdminPage';
 import { Navigate } from 'react-router-dom';
 import NotificationsPage from './pages/NotificationsPage';
 import StaffPage from './components/StaffPage';
+import MyLoansPage from './pages/MyLoansPage';
 
 /**
  * AdminProtectedRoute Component
@@ -103,6 +104,7 @@ function App() {
                     <Route path="/edit-profile" element={<EditProfile />} />
                     <Route path="/notifications" element={<NotificationsPage />} />
                     <Route path="/staff-page" element={<StaffPage />} />
+                    <Route path='/my-loans' element={<MyLoansPage />} />
                     <Route
                         path="/admin"
                         element={

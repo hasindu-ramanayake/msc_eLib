@@ -7,6 +7,8 @@ import com.example.itemservice.mapper.ItemMapper;
 import com.example.itemservice.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.UUID;
@@ -87,6 +89,15 @@ public class ItemService {
 
     public List<ItemDto> getAllItems() {
         return itemRepository.findAll()
+                .stream()
+                .map(itemMapper::toDto)
+                .toList();
+    }
+
+    public List<ItemDto> getItemsPaginated(int page, int size) {
+        Page<Item> itemPage = itemRepository.findAll(PageRequest.of(page, size));
+
+        return itemPage.getContent()
                 .stream()
                 .map(itemMapper::toDto)
                 .toList();
