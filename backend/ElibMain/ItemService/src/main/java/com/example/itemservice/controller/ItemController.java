@@ -50,6 +50,14 @@ public class ItemController {
         return itemService.getAllItems();
     }
 
+    @GetMapping("/paginated")
+    public List<ItemDto> getItemsPaginated(
+            @RequestParam int page,
+            @RequestParam int size) {
+
+        return itemService.getItemsPaginated(page, size);
+    }
+
     @GetMapping("/search")
     public List<ItemDto> search(@RequestParam String keyword) {
         return itemService.search(keyword);

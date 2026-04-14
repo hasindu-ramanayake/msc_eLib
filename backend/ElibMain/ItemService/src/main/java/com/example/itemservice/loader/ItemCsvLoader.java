@@ -2,6 +2,7 @@ package com.example.itemservice.loader;
 
 import com.example.itemservice.entity.Item;
 import com.example.itemservice.repository.ItemRepository;
+import com.example.itemservice.service.RabbitMQService;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +21,12 @@ import java.util.*;
 public class ItemCsvLoader {
 
     private final ItemRepository itemRepository;
+    private final RabbitMQService rabbitMQService;
 
     @PostConstruct
     public void loadCsv() {
 
+        //Comment out for testing
         if (itemRepository.count() > 0) {
             return;
         }
@@ -62,9 +65,13 @@ public class ItemCsvLoader {
                 items.add(item);
             }
 
-            itemRepository.saveAll(items);
+            List<Item> savedItems = itemRepository.saveAll(items);
 
-            System.out.println("CSV loaded into item_db successfully");
+            for (Item item : savedItems) {
+                rabbitMQService.sendItemEvent(item, "CREATE");
+            }
+
+            System.out.println("CSV loaded + events sent");
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to load CSV file into database", e);
