@@ -13,7 +13,10 @@ services:
     ports:
       - "8765:8765"
     depends_on:
+      - zipkin
       - discovery-server
+    environment:
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://elibmain:9411/api/v2/spans
 
   search-service:
     build:
@@ -59,3 +62,11 @@ services:
       - "8081:8081"
     depends_on:
       - discovery-server
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - default # This matches the 'msc_elib_default' network
