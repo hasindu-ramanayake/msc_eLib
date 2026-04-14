@@ -43,6 +43,7 @@ public class GatewaySecurityConfig {
                         .requestMatchers("/api/v1/users/login").permitAll()
                         .requestMatchers("/api/v1/users/test").permitAll()
                         .requestMatchers("/api/v1/search/**").permitAll()
+                        .requestMatchers("/api/v1/item/**").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/login/oauth2/**").permitAll()
                         .requestMatchers("/error").permitAll()
