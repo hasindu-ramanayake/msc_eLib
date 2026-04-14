@@ -13,4 +13,5 @@ public class NotificationEventDTO {
     private UUID userId;
     private Map<String, String> payload;
     private Date occuredAt;
+    private String jwtToken;
 }
