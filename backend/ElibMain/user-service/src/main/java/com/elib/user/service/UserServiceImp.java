@@ -102,10 +102,13 @@ public class UserServiceImp implements UserService {
                 UserRegisterEvent event = UserRegisterEvent.builder()
                         .eventId(UUID.randomUUID())
                         .eventType(EventType.USER_REGISTERED)
-                        .userId(savedUser.getId()).build();
-//                        .payload(payload)
-//                        .occuredAt(new Date())
-//                        .build();
+                        .userId(savedUser.getId())
+                        .payload(payload)
+                        .occuredAt(new Date())
+                        .notificationPreferences(savedUser.getNotificationPreferences().stream()
+                                .map(Enum::name)
+                                .collect(Collectors.toList()))
+                        .build();
 
                 notificationEventPublisher.publishUserRegisteredEvent(event);
             } catch (Exception mqEx) {

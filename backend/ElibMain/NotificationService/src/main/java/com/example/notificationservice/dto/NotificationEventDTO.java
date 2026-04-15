@@ -5,6 +5,7 @@ import lombok.Data;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
+import java.util.List;
 
 @Data
 public class NotificationEventDTO {
@@ -14,4 +15,5 @@ public class NotificationEventDTO {
     private Map<String, String> payload;
     private Date occuredAt;
     private String jwtToken;
+    private List<String> notificationPreferences;
 }
