@@ -65,7 +65,7 @@ public class BorrowService {
 
         NotificationEventDto notification = generateNotification(borrow.getUserId(), item);
 
-        rabbitTemplate.convertAndSend(notification);
+//        rabbitTemplate.convertAndSend(notification);
 
         return borrowMapper.toDto(borrowRepository.save(borrow));
     }

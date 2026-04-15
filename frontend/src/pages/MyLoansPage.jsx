@@ -6,130 +6,7 @@ import LoanItem from '../components/LoanItem';
 import WaitlistItem from '../components/WaitlistItem';
 import { useAuth } from '../context/AuthContext';
 
-const BORROW_API = import.meta.env.VITE_API_BASE_URL;
-
-const MOCK_LOANS = [
-    {
-        loanId: 'L001',
-        title: 'The Great Gatsby',
-        author: 'F. Scott Fitzgerald',
-        isbn: '9780743273565',
-        category: 'Book',
-        borrowedDate: '2026-03-20T09:00:00Z',
-        dueDate: '2026-04-03T23:59:00Z',
-        returnedDate: null,
-        status: 'OVERDUE',
-        description: 'A story of the fabulously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan.',
-        publishedYear: 1925,
-    },
-    {
-        loanId: 'L002',
-        title: '1984',
-        author: 'George Orwell',
-        isbn: '9780451524935',
-        category: 'Book',
-        borrowedDate: '2026-04-01T11:30:00Z',
-        dueDate: '2026-04-15T23:59:00Z',
-        returnedDate: null,
-        status: 'ACTIVE',
-        description: 'A dystopian social science fiction novel and cautionary tale about the dangers of totalitarianism.',
-        publishedYear: 1949,
-    },
-    {
-        loanId: 'L003',
-        title: 'To Kill a Mockingbird',
-        author: 'Harper Lee',
-        isbn: '9780061120084',
-        category: 'Book',
-        borrowedDate: '2026-02-10T08:00:00Z',
-        dueDate: '2026-02-24T23:59:00Z',
-        returnedDate: '2026-02-22T14:05:00Z',
-        status: 'RETURNED',
-        description: 'A novel about the serious issues of racial inequality told through the eyes of young Scout Finch.',
-        publishedYear: 1960,
-    },
-    {
-        loanId: 'L004',
-        title: 'Brave New World',
-        author: 'Aldous Huxley',
-        isbn: '9780060850524',
-        category: 'Book',
-        borrowedDate: '2026-04-05T14:15:00Z',
-        dueDate: '2026-04-19T23:59:00Z',
-        returnedDate: null,
-        status: 'ACTIVE',
-        description: 'A dystopian novel set in a futuristic World State where citizens are environmentally engineered.',
-        publishedYear: 1932,
-    },
-    {
-        loanId: 'L005',
-        title: 'The Catcher in the Rye',
-        author: 'J.D. Salinger',
-        isbn: '9780316769174',
-        category: 'Book',
-        borrowedDate: '2026-01-15T10:00:00Z',
-        dueDate: '2026-01-29T23:59:00Z',
-        returnedDate: '2026-01-28T09:30:00Z',
-        status: 'RETURNED',
-        description: 'A story about adolescent alienation and loss, narrated by the iconic Holden Caulfield.',
-        publishedYear: 1951,
-    },
-];
-
-const MOCK_WAITLIST = [
-    {
-        waitlistId: 'W001',
-        title: 'Dune',
-        author: 'Frank Herbert',
-        isbn: '9780441013593',
-        category: 'Book',
-        description: "Set on the desert planet Arrakis, Dune is the story of the boy Paul Atreides, who would become known as Muad'Dib.",
-        publishedYear: 1965,
-        position: 1,
-        joinedDate: '2026-04-10T10:00:00Z',
-        estimatedAvailability: '2026-04-18T00:00:00Z',
-        status: 'AVAILABLE',
-    },
-    {
-        waitlistId: 'W002',
-        title: 'The Road',
-        author: 'Cormac McCarthy',
-        isbn: '9780307387899',
-        category: 'Book',
-        description: 'A post-apocalyptic novel about a father and his young son journeying across a burned America.',
-        publishedYear: 2006,
-        position: 2,
-        joinedDate: '2026-04-08T14:30:00Z',
-        estimatedAvailability: '2026-04-25T00:00:00Z',
-        status: 'WAITING',
-    },
-    {
-        waitlistId: 'W003',
-        title: 'Sapiens: A Brief History of Humankind',
-        author: 'Yuval Noah Harari',
-        isbn: '9780062316097',
-        category: 'Book',
-        description: "A sweeping narrative of humanity's creation and evolution, from the Stone Age to the twenty-first century.",
-        publishedYear: 2011,
-        position: 5,
-        joinedDate: '2026-04-01T09:00:00Z',
-        estimatedAvailability: '2026-05-10T00:00:00Z',
-        status: 'WAITING',
-    },
-    {
-        waitlistId: 'W004',
-        title: 'The Hobbit',
-        author: 'J.R.R. Tolkien',
-        isbn: '9780547928227',
-        category: 'Book',
-        description: 'Bilbo Baggins is a hobbit who enjoys a comfortable, unambitious life, rarely travelling far from his pantry.',
-        publishedYear: 1937,
-        position: null,
-        joinedDate: '2026-03-20T11:00:00Z',
-        estimatedAvailability: null,
-        status: 'CANCELLED',
-    },
-];
+const BORROW_API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
 
 const LOAN_FILTERS = ['ALL', 'ACTIVE', 'OVERDUE', 'RETURNED'];
 const LOAN_LABELS = { ALL: 'All Loans', ACTIVE: 'Active', OVERDUE: 'Overdue', RETURNED: 'Returned' };
@@ -151,16 +28,21 @@ const MyLoansPage = () => {
 
     useEffect(() => {
         const go = async () => {
+            if (!user?.id) {
+                setLoansLoading(false);
+                return;
+            }
             setLoansLoading(true);
             try {
                 if (!user?.id) throw new Error('no-user');
-                const res = await fetch(`${BORROW_API}/api/v1/borrows/user/${user.id}`, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` },
+                const res = await fetch(`${BORROW_API}/api/v1/borrows/users/${user.id}`, {
+                    headers: { 'Authorization': `Bearer ${user.token || ''}` },
                 });
-                if (!res.ok) throw new Error('api-error');
+                if (!res.ok) throw new Error('Failed to fetch loans');
                 setLoans(await res.json());
-            } catch {
-                setLoans(MOCK_LOANS);
+            } catch (err) {
+                console.error(err);
+                setLoans([]);
             } finally {
                 setLoansLoading(false);
             }
@@ -170,16 +52,21 @@ const MyLoansPage = () => {
 
     useEffect(() => {
         const go = async () => {
+            if (!user?.id) {
+                setWlLoading(false);
+                return;
+            }
             setWlLoading(true);
             try {
                 if (!user?.id) throw new Error('no-user');
-                const res = await fetch(`${BORROW_API}/api/v1/waitlist/user/${user.id}`, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` },
+                const res = await fetch(`${BORROW_API}/api/v1/waitlist/users/${user.id}`, {
+                    headers: { Authorization: `Bearer ${user.token || ''}` },
                 });
-                if (!res.ok) throw new Error('api-error');
+                if (!res.ok) throw new Error('Failed to fetch waitlist');
                 setWaitlist(await res.json());
-            } catch {
-                setWaitlist(MOCK_WAITLIST);
+            } catch (err) {
+                // console.error(err);
+                setWaitlist([]);
             } finally {
                 setWlLoading(false);
             }
