@@ -2,6 +2,7 @@ package com.example.borrowservice.service;
 
 import com.example.borrowservice.dto.*;
 import com.example.borrowservice.entity.Borrow;
+import com.example.borrowservice.event.NotificationEventPublisher;
 import com.example.borrowservice.exception.BadRequestException;
 import com.example.borrowservice.exception.ResourceNotFoundException;
 import com.example.borrowservice.mapper.BorrowMapper;
@@ -27,7 +28,7 @@ public class BorrowService {
     private final ItemService itemService;
     private final UserService userService;
     private final CreditService creditService;
-    private final RabbitTemplate rabbitTemplate;
+    private final NotificationEventPublisher notificationEventPublisher;
 
     public List<BorrowDto> getAllBorrows() {
         return borrowRepository
@@ -65,7 +66,7 @@ public class BorrowService {
 
         NotificationEventDto notification = generateNotification(borrow.getUserId(), item);
 
-//        rabbitTemplate.convertAndSend(notification);
+        notificationEventPublisher.publishBorrowCreationEvent(notification);
 
         return borrowMapper.toDto(borrowRepository.save(borrow));
     }
