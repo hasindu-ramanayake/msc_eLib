@@ -57,12 +57,18 @@ public class NotificationService {
         log.info("Handling event type={} userId={}", event.getEventType(), event.getUserId());
 
         NotificationType notificationType = resolveType(event);
+        UserPreferences prefs;
 
-        // Fetch user data from User Service using the JWT from the event
-        UserServiceResponseDTO userDto = userServiceClient.getUserById(
-                event.getUserId(), event.getJwtToken());
-
-        UserPreferences prefs = UserPreferences.fromUserServiceResponse(userDto);
+        // For registration events, we don't have a JWT and the payload contains user info.
+        if (event.getEventType() == com.example.notificationservice.dto.EventType.USER_REGISTERED) {
+            log.debug("Processing USER_REGISTERED event from payload for userId={}", event.getUserId());
+            prefs = UserPreferences.fromEvent(event);
+        } else {
+            // Fetch user data from User Service using the JWT from the event
+            UserServiceResponseDTO userDto = userServiceClient.getUserById(
+                    event.getUserId(), event.getJwtToken());
+            prefs = UserPreferences.fromUserServiceResponse(userDto);
+        }
 
         AbstractMessageBuilder builder = messageBuilderFactory.forType(notificationType);
         Message message = builder.build(event.getPayload());

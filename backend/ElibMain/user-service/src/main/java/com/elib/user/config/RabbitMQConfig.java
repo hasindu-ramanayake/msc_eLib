@@ -24,24 +24,24 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.user.routing-key}")
     private String userRoutingKey;
 
-    /** Durable queue for user lifecycle events. */
+    /** Durable queue for notification events (aligned with NotificationService). */
     @Bean
-    public Queue userEventQueue() {
+    public Queue notificationEventQueue() {
         return new Queue(userQueue, true);
     }
 
-    /** Topic exchange for user lifecycle events. */
+    /** Topic exchange for notification events (aligned with NotificationService). */
     @Bean
-    public TopicExchange userEventExchange() {
+    public TopicExchange notificationEventExchange() {
         return new TopicExchange(userExchange);
     }
 
-    /** Binds the user queue to the user exchange. */
+    /** Binds the notification queue to the notification exchange. */
     @Bean
-    public Binding userEventBinding(Queue userEventQueue, TopicExchange userEventExchange) {
+    public Binding notificationEventBinding(Queue notificationEventQueue, TopicExchange notificationEventExchange) {
         return BindingBuilder
-                .bind(userEventQueue)
-                .to(userEventExchange)
+                .bind(notificationEventQueue)
+                .to(notificationEventExchange)
                 .with(userRoutingKey);
     }
 

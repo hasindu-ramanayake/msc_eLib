@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
+import java.util.List;
 
 /**
  * Event published to RabbitMQ when a new user successfully registers.
@@ -28,9 +29,12 @@ public class UserRegisterEvent {
     /** ID of the newly registered user. */
     private UUID userId;
 
-//    /** Arbitrary key/value payload (e.g. email, firstName). */
-//    private Map<String, String> payload;
-//
-//    /** Timestamp of when the event occurred. */
-//    private Date occuredAt;
+    /** Arbitrary key/value payload (e.g. email, firstName). */
+    private Map<String, String> payload;
+
+    /** Timestamp of when the event occurred. */
+    private Date occuredAt;
+
+    /** Default notification preferences (e.g. ["EMAIL", "IN_APP"]). */
+    private List<String> notificationPreferences;
 }

@@ -1,6 +1,7 @@
 package com.example.notificationservice.entity;
 
 import com.example.notificationservice.dto.UserServiceResponseDTO;
+import com.example.notificationservice.dto.NotificationEventDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.UUID;
+import java.util.List;
 
 @Entity
 @Table(name = "user_preferences")
@@ -44,6 +46,25 @@ public class UserPreferences {
         prefs.setInAppEnabled(dto.getNotificationPreferences().contains("IN_APP"));
         prefs.setEmailEnabled(dto.getNotificationPreferences().contains("EMAIL"));
         prefs.setSmsEnabled(dto.getNotificationPreferences().contains("SMS"));
+        return prefs;
+    }
+
+    public static UserPreferences fromEvent(NotificationEventDTO event) {
+        UserPreferences prefs = new UserPreferences();
+        prefs.setUserId(event.getUserId());
+        prefs.setEmail(event.getPayload().get("email"));
+        
+        List<String> userPrefs = event.getNotificationPreferences();
+        if (userPrefs != null) {
+            prefs.setInAppEnabled(userPrefs.contains("IN_APP"));
+            prefs.setEmailEnabled(userPrefs.contains("EMAIL"));
+            prefs.setSmsEnabled(userPrefs.contains("SMS"));
+        } else {
+            // Defaults if not provided
+            prefs.setInAppEnabled(true);
+            prefs.setEmailEnabled(false);
+            prefs.setSmsEnabled(false);
+        }
         return prefs;
     }
 }
