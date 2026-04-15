@@ -1,12 +1,7 @@
 
 package com.elib.user.service;
 
-import com.elib.user.dto.AuthRequestDTO;
-import com.elib.user.dto.AuthResponseDTO;
-import com.elib.user.dto.UserRegistrationDTO;
-import com.elib.user.dto.UserUpdateDTO;
-import com.elib.user.dto.UserDTO;
-import com.elib.user.dto.UserMapper;
+import com.elib.user.dto.*;
 import com.elib.user.entity.Role;
 import com.elib.user.entity.User;
 import com.elib.user.event.NotificationEventPublisher;
@@ -106,11 +101,11 @@ public class UserServiceImp implements UserService {
 
                 UserRegisterEvent event = UserRegisterEvent.builder()
                         .eventId(UUID.randomUUID())
-                        .eventType("USER_REGISTERED")
-                        .userId(savedUser.getId())
-                        .payload(payload)
-                        .occuredAt(new Date())
-                        .build();
+                        .eventType(EventType.USER_REGISTERED)
+                        .userId(savedUser.getId()).build();
+//                        .payload(payload)
+//                        .occuredAt(new Date())
+//                        .build();
 
                 notificationEventPublisher.publishUserRegisteredEvent(event);
             } catch (Exception mqEx) {

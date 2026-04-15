@@ -1,5 +1,6 @@
 package com.elib.user.event;
 
+import com.elib.user.dto.EventType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,14 +23,14 @@ public class UserRegisterEvent {
     private UUID eventId;
 
     /** The type of event (e.g. "USER_REGISTERED"). */
-    private String eventType;
+    private EventType eventType;
 
     /** ID of the newly registered user. */
     private UUID userId;
 
-    /** Arbitrary key/value payload (e.g. email, firstName). */
-    private Map<String, String> payload;
-
-    /** Timestamp of when the event occurred. */
-    private Date occuredAt;
+//    /** Arbitrary key/value payload (e.g. email, firstName). */
+//    private Map<String, String> payload;
+//
+//    /** Timestamp of when the event occurred. */
+//    private Date occuredAt;
 }
