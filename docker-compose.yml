@@ -68,6 +68,8 @@ services:
       - "discovery.type=single-node"
     ports:
       - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
     healthcheck:
       test: [ "CMD-SHELL", "curl -s http://localhost:9200/_cluster/health || exit 1" ]
       interval: 15s
@@ -171,6 +173,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://item_db:5432/item_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
+      elasticsearch:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
       item_db:
         condition: service_healthy
       eureka-server:
@@ -238,3 +244,4 @@ volumes:
   user_db_data:
   item_db_data:
   borrow_db_data:
+  es_data:

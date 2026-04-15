@@ -29,9 +29,9 @@ public class ItemCsvLoader {
     public void loadCsv() {
 
         // Comment out for testing
-        // if (itemRepository.count() > 0) {
-        // return;
-        // }
+        if (itemRepository.count() > 0) {
+            return;
+        }
 
         try (Reader reader = new InputStreamReader(
                 getClass().getClassLoader().getResourceAsStream("books.csv"),
@@ -44,7 +44,7 @@ public class ItemCsvLoader {
             List<Item> items = new ArrayList<>();
 
             for (String[] row : rows) {
-                log.info("Processing row: {}", row);
+                // log.info("Processing row: {}", row);
                 Item item = new Item();
 
                 item.setIsbn13(row[0]);
