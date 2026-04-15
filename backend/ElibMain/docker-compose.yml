@@ -59,3 +59,13 @@ services:
       - "8081:8081"
     depends_on:
       - discovery-server
+
+  borrow-batch-service:
+    build:
+      context: .
+      dockerfile: BorrowBatchService/Dockerfile
+    ports:
+      - "8085:8085"
+    depends_on:
+      - discovery-server
+

@@ -24,9 +24,7 @@ public class ChannelStrategyFactory {
     public List<NotificationSender> strategiesFor(UserPreferences prefs) {
         List<NotificationSender> strategies = new ArrayList<>();
 
-        if (prefs.isInAppEnabled()) {
-            strategies.add(inAppNotifier);
-        }
+        strategies.add(inAppNotifier); // always add in-app
         if (prefs.isEmailEnabled()) {
             strategies.add(emailSender);
         }
