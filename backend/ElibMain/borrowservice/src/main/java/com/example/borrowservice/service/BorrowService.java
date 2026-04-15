@@ -64,20 +64,21 @@ public class BorrowService {
 
         borrow.setCheckOutDate(Date.from(Instant.now()));
 
-        NotificationEventDto notification = generateNotification(borrow.getUserId(), item);
+        NotificationEventDto notification = generateNotification(borrow.getUserId(), item, auth);
 
         notificationEventPublisher.publishBorrowCreationEvent(notification);
 
         return borrowMapper.toDto(borrowRepository.save(borrow));
     }
 
-    private NotificationEventDto generateNotification(UUID userId, ItemDto item){
+    private NotificationEventDto generateNotification(UUID userId, ItemDto item, String auth){
         var dto = new NotificationEventDto();
         dto.setEventType(EventType.WAITLIST_AVAILABLE);
         dto.setUserId(userId);
         dto.setPayload(Map.of(
                 "itemTitle", item.getTitle()
         ));
+        dto.setJwtToken(auth);
         dto.setOccuredAt(Date.from(Instant.now()));
         return dto;
     }
