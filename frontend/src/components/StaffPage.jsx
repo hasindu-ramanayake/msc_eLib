@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * StaffPage Component
@@ -9,6 +10,7 @@ import Header from './Header';
  */
 const StaffPage = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('books'); // Default to 'books' tab
     const [items, setItems] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -17,10 +19,8 @@ const StaffPage = () => {
     const [error, setError] = useState(null);
     const [showConfirmSave, setShowConfirmSave] = useState(false);
     const [editItem, setEditItem] = useState(null);
-    const [showModal, setShowModal] = useState(false);
 
-
-    const API_BASE = "http://localhost:8765";
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8765";
 
     const mockData = {
         books: [],
@@ -59,28 +59,54 @@ const StaffPage = () => {
         setError(null);
 
         try {
-            // BOOKS come from backend
             if (tab === 'books') {
                 const response = await fetch(`${API_BASE}/api/v1/item`, {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'Content-Type': 'application/json' }
                 });
 
                 if (!response.ok) throw new Error("Failed to fetch books");
-
                 const data = await response.json();
+                setItems(data.map(item => ({ ...item, isbn: item.isbn13 || '' })));
+            }
+            else if (tab === 'borrows') {
+                const response = await fetch(`${API_BASE}/api/v1/borrows`, {
+                    method: 'GET',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${user?.token || ''}`
+                    }
+                });
 
-                const normalized = data.map(item => ({
-                    ...item,
-                    isbn: item.isbn13 || ''
+                if (!response.ok) throw new Error("Failed to fetch borrows");
+                const borrows = await response.json();
+
+                // Fetch item titles for readability
+                const itemIds = [...new Set(borrows.map(b => b.itemId))];
+                const itemMap = {};
+                
+                await Promise.all(itemIds.map(async (id) => {
+                    try {
+                        const iRes = await fetch(`${API_BASE}/api/v1/item/${id}`);
+                        if (iRes.ok) {
+                            const iData = await iRes.json();
+                            itemMap[id] = iData.title;
+                        }
+                    } catch (e) {
+                        itemMap[id] = 'Unknown Item';
+                    }
                 }));
 
-                setItems(normalized);
+                const enriched = borrows.map(b => ({
+                    ...b,
+                    title: itemMap[b.itemId] || 'Loading...',
+                    status: getLoanStatus(b)
+                }));
+
+                setItems(enriched);
             }
             else {
-                // EVENTS / GAMES / MOVIES still mock data
+                // Mock data for others
                 setTimeout(() => {
                     setItems(mockData[tab] || []);
                 }, 300);
@@ -88,9 +114,54 @@ const StaffPage = () => {
 
         } catch (err) {
             console.error(err);
-            setError("Failed to load items");
+            setError("Failed to load data");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleReturnItem = async (id) => {
+        try {
+            const response = await fetch(`${API_BASE}/api/v1/borrows/${id}/return`, {
+                method: 'PATCH',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user?.token || ''}`
+                }
+            });
+
+            if (!response.ok) throw new Error("Failed to return item");
+
+            setItems(prev => prev.map(item => {
+                if (item.id === id) {
+                    return {
+                        ...item,
+                        isReturned: true,
+                        status: 'RETURNED'
+                    };
+                }
+                return item;
+            }));
+
+        } catch (err) {
+            console.error(err);
+            setError("Failed to process return");
+        }
+    };
+
+    const getLoanStatus = (borrow) => {
+        if (borrow.isReturned) return 'RETURNED';
+        const dueDate = new Date(borrow.dueDate);
+        const now = new Date();
+        return now > dueDate ? 'OVERDUE' : 'ACTIVE';
+    };
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'RETURNED': return 'bg-gray-100 text-gray-700 font-bold';
+            case 'OVERDUE': return 'bg-red-100 text-red-700 font-bold';
+            case 'ACTIVE': return 'bg-emerald-100 text-emerald-700 font-bold';
+            default: return 'bg-blue-100 text-blue-700 font-bold';
         }
     };
 
@@ -208,11 +279,12 @@ const StaffPage = () => {
 
         if (!query) return true;
 
-        const idMatch = item.id?.toString().includes(query);
+        const idMatch = item.id?.toString().toLowerCase().includes(query);
         const titleMatch = item.title?.toLowerCase().includes(query);
         const isbnMatch = item.isbn?.toLowerCase().includes(query);
+        const userMatch = item.userId?.toLowerCase().includes(query);
 
-        return idMatch || titleMatch || isbnMatch;
+        return idMatch || titleMatch || isbnMatch || userMatch;
     });
 
     return (
@@ -222,41 +294,49 @@ const StaffPage = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Item Management</h1>
-                        <p className="mt-1 text-gray-500">View and manage all items in the system.</p>
+                        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Library Management</h1>
+                        <p className="mt-1 text-gray-500">View and manage all system items and user loans.</p>
                     </div>
-                    <div className="mt-4 md:mt-0">
-                        <button
-                            onClick={handleAddItem}
-                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                        >
-                            Add New Item
-                        </button>
-                    </div>
+                    {activeTab !== 'borrows' && (
+                        <div className="mt-4 md:mt-0">
+                            <button
+                                onClick={handleAddItem}
+                                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                            >
+                                Add New Item
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Tabs for category navigation */}
-                <div className="flex space-x-6 mb-8">
+                <div className="flex space-x-6 mb-8 overflow-x-auto pb-2">
                     <button
-                        className={`px-4 py-2 font-semibold text-sm ${activeTab === 'events' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                        className={`px-4 py-2 font-semibold text-sm rounded-lg transition-all ${activeTab === 'borrows' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+                        onClick={() => handleTabClick('borrows')}
+                    >
+                        Borrows
+                    </button>
+                    <button
+                        className={`px-4 py-2 font-semibold text-sm rounded-lg transition-all ${activeTab === 'events' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
                         onClick={() => handleTabClick('events')}
                     >
                         Events
                     </button>
                     <button
-                        className={`px-4 py-2 font-semibold text-sm ${activeTab === 'books' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                        className={`px-4 py-2 font-semibold text-sm rounded-lg transition-all ${activeTab === 'books' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
                         onClick={() => handleTabClick('books')}
                     >
                         Books
                     </button>
                     <button
-                        className={`px-4 py-2 font-semibold text-sm ${activeTab === 'games' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                        className={`px-4 py-2 font-semibold text-sm rounded-lg transition-all ${activeTab === 'games' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
                         onClick={() => handleTabClick('games')}
                     >
                         Games
                     </button>
                     <button
-                        className={`px-4 py-2 font-semibold text-sm ${activeTab === 'movies' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                        className={`px-4 py-2 font-semibold text-sm rounded-lg transition-all ${activeTab === 'movies' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
                         onClick={() => handleTabClick('movies')}
                     >
                         Movies
@@ -290,18 +370,31 @@ const StaffPage = () => {
                         <table className="min-w-full table-fixed divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Item Id</th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                        {activeTab === 'borrows' ? 'Loan ID' : 'Item Id'}
+                                    </th>
                                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Title</th>
-                                    {(activeTab === 'games' || activeTab === 'movies') && (
-                                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Release Year</th>
-                                    )}
-                                    {activeTab === 'books' && (
-                                        <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ISBN</th>
-                                    )}
-                                    {activeTab === 'events' && (
+                                    
+                                    {activeTab === 'borrows' ? (
                                         <>
-                                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Location</th>
-                                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">User ID</th>
+                                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Due Date</th>
+                                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {(activeTab === 'games' || activeTab === 'movies') && (
+                                                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Release Year</th>
+                                            )}
+                                            {activeTab === 'books' && (
+                                                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ISBN</th>
+                                            )}
+                                            {activeTab === 'events' && (
+                                                <>
+                                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Location</th>
+                                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                                                </>
+                                            )}
                                         </>
                                     )}
                                     <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
@@ -317,33 +410,64 @@ const StaffPage = () => {
                                 ) : (
                                     filteredItems.map((item) => (
                                         <tr key={item.id} className="hover:bg-blue-50/30 transition-colors duration-150">
-                                            <td className="px-6 py-4 whitespace-nowrap">{item.id}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap font-mono text-xs">
+                                                {activeTab === 'borrows' ? item.id.slice(0, 8) + '...' : item.id}
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="truncate max-w-[200px]">
+                                                <div className="truncate max-w-[200px] font-medium">
                                                     {item.title}
                                                 </div>
                                             </td>
-                                            {(activeTab === 'games' || activeTab === 'movies') && (
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    {item.publishedYear}
-                                                </td>
-                                            )}
-                                            {activeTab === 'books' && (
-                                                <td className="px-6 py-4 whitespace-nowrap">{item.isbn}</td>
-                                            )}
-                                            {activeTab === 'events' && (
+
+                                            {activeTab === 'borrows' ? (
                                                 <>
-                                                    <td className="px-6 py-4 whitespace-nowrap">{item.location}</td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">{formatDate(item.date)}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap font-mono text-xs">{item.userId.slice(0, 8)}...</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm">{formatDate(item.dueDate)}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <span className={`px-2 py-1 rounded-full text-[10px] ${getStatusColor(item.status)}`}>
+                                                            {item.status}
+                                                        </span>
+                                                    </td>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {(activeTab === 'games' || activeTab === 'movies') && (
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            {item.publishedYear}
+                                                        </td>
+                                                    )}
+                                                    {activeTab === 'books' && (
+                                                        <td className="px-6 py-4 whitespace-nowrap">{item.isbn}</td>
+                                                    )}
+                                                    {activeTab === 'events' && (
+                                                        <>
+                                                            <td className="px-6 py-4 whitespace-nowrap">{item.location}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap">{formatDate(item.date)}</td>
+                                                        </>
+                                                    )}
                                                 </>
                                             )}
+
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <button
-                                                    onClick={() => setEditItem({ ...item })}
-                                                    className="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-all"
-                                                >
-                                                    View / Edit
-                                                </button>
+                                                {activeTab === 'borrows' ? (
+                                                    <>
+                                                        {!item.isReturned && (
+                                                            <button
+                                                                onClick={() => handleReturnItem(item.id)}
+                                                                className="text-emerald-600 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-all text-xs font-bold mr-2"
+                                                            >
+                                                                Mark Returned
+                                                            </button>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => setEditItem({ ...item })}
+                                                        className="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-all"
+                                                    >
+                                                        View / Edit
+                                                    </button>
+                                                )}
                                                 <button
                                                     onClick={() => handleDeleteItem(item.id)}
                                                     className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg transition-all ml-2"
