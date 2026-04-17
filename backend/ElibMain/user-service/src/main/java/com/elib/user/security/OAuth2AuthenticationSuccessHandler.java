@@ -15,8 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -28,7 +26,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                         Authentication authentication) throws IOException, ServletException {
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
@@ -36,31 +34,45 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found after OAuth2 login"));
 
-        // Check if user was just created (within the last 30 seconds) to determine if it's a registration or a login
-        boolean isNewUser = ChronoUnit.SECONDS.between(user.getCreatedAt(), LocalDateTime.now()) < 30;
+        // Determine if this was a registration or a login based on the intent cookie set by the frontend
+        boolean isRegistration = false;
+        jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (jakarta.servlet.http.Cookie cookie : cookies) {
+                if ("oauth_intent".equals(cookie.getName())) {
+                    isRegistration = "register".equals(cookie.getValue());
+                    // Clear the cookie
+                    jakarta.servlet.http.Cookie clearCookie = new jakarta.servlet.http.Cookie("oauth_intent", "");
+                    clearCookie.setPath("/");
+                    clearCookie.setMaxAge(0);
+                    response.addCookie(clearCookie);
+                    break;
+                }
+            }
+        }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId());
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getRole().name(), user.getId());
 
         String targetUrl;
-        if (isNewUser) {
-            log.info("Google registration successful for: {}. Redirecting to home (logged out).", email);
-            targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/")
+        if (isRegistration) {
+            log.info("Google registration successful for: {}. Redirecting to login page.", email);
+            targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/login")
                     .queryParam("registered", "true")
                     .build().toUriString();
         } else {
-            log.info("Google login successful for: {}. Redirecting with tokens.", email);
+            log.info("Google login successful for: {}. Redirecting to home.", email);
             targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/oauth2/redirect")
                     .queryParam("token", token)
                     .queryParam("refreshToken", refreshToken)
-                    .queryParam("email", user.getEmail()) // Added to fix frontend missing data
-                    .queryParam("firstName", user.getFirstName()) // Added to fix frontend missing data
-                    .queryParam("lastName", user.getLastName()) // Added to fix frontend missing data
-                    .queryParam("role", user.getRole().name()) // Added to fix frontend missing data
-                    .queryParam("id", user.getId().toString()) // Added to fix frontend missing data
+                    .queryParam("email", user.getEmail())
+                    .queryParam("firstName", user.getFirstName())
+                    .queryParam("lastName", user.getLastName())
+                    .queryParam("role", user.getRole().name())
+                    .queryParam("id", user.getId().toString())
                     .build().toUriString();
         }
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
-}
+}
