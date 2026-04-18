@@ -21,16 +21,16 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Updates local state and persists user data to local storage on login
-  const login = (userData) => {
+  const login = React.useCallback((userData) => {
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
-  };
+  }, []);
 
   // Clears session data from both local state and local storage on logout
-  const logout = () => {
+  const logout = React.useCallback(() => {
     localStorage.removeItem('user');
     setUser(null);
-  };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>

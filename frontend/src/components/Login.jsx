@@ -11,6 +11,11 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  // Check for successful registration flag or error in URL
+  const { search } = window.location;
+  const isRegistered = new URLSearchParams(search).get('registered') === 'true';
+  const isAccountNotFound = new URLSearchParams(search).get('error') === 'user_not_found';
+
   // Main login handler
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -63,6 +68,22 @@ const Login = () => {
                 create a new account
               </Link>
             </p>
+
+            {/* Registration Success Alert */}
+            {isRegistered && (
+                <div className="mt-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-center animate-pulse shadow-sm">
+                  <p className="font-semibold text-sm">Registration Successful!</p>
+                  <p className="text-xs">Your account has been created with Google. Please click "Sign in with Google" below to finalize your access.</p>
+                </div>
+            )}
+
+            {/* Account Not Found Error Alert */}
+            {isAccountNotFound && (
+                <div className="mt-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-center shadow-sm">
+                  <p className="font-semibold text-sm">Account Not Found</p>
+                  <p className="text-xs">You haven't registered with this Google account yet. Please use the <Link to="/register" className="underline font-bold">Sign Up</Link> page first.</p>
+                </div>
+            )}
           </div>
 
           <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -124,6 +145,8 @@ const Login = () => {
                     <button
                         type="button"
                         onClick={() => {
+                          // Set a cookie to indicate intent for the backend
+                          document.cookie = "oauth_intent=login; path=/; max-age=300";
                           const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
                           window.location.href = `${baseUrl}/oauth2/authorization/google`;
                         }}

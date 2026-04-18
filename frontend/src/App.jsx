@@ -52,20 +52,9 @@ const StaffProtectedRoute = ({ children }) => {
 
 // Extracted the old App landing page contents into its own component
 const Home = () => {
-    const { search } = window.location;
-    const isRegistered = new URLSearchParams(search).get('registered') === 'true';
-
     return (
         <div className="bg-white min-h-screen w-full flex flex-col items-center pt-24">
             <Header />
-
-            {/* Registration Success Alert */}
-            {isRegistered && (
-                <div className="w-2/3 max-w-2xl mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-center animate-bounce shadow-sm">
-                    <p className="font-semibold">Registration Successful!</p>
-                    <p className="text-sm">Your account has been created with Google. Please click "Login" to sign in.</p>
-                </div>
-            )}
 
             {/* Main Content Container - Flexibly spans whole screen on mobile */}
             <div className="w-11/12 sm:w-5/6 md:w-2/3 lg:max-w-4xl mt-8 flex flex-col flex-grow">

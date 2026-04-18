@@ -115,6 +115,8 @@ const Register = () => {
               <button
                 type="button"
                 onClick={() => {
+                  // Set a cookie to indicate intent for the backend
+                  document.cookie = "oauth_intent=register; path=/; max-age=300";
                   const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
                   window.location.href = `${baseUrl}/oauth2/authorization/google`;
                 }}
@@ -213,34 +215,6 @@ const Register = () => {
                       value={formData.phoneNumber}
                       onChange={handleChange}
                       placeholder="+353 8X XXX XXXX"
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors sm:text-sm"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Password</label>
-                  <div className="mt-1">
-                    <input
-                      type="password"
-                      name="password"
-                      required
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors sm:text-sm"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
-                  <div className="mt-1">
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      required
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
                       className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors sm:text-sm"
                     />
                   </div>
