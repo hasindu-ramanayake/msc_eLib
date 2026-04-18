@@ -33,9 +33,9 @@ const Header = () => {
           <Link to="/search" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
             Search
           </Link>
-          <a href="/library-info" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
+          {/* <a href="/library-info" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
             LibraryInfo
-          </a>
+          </a> */}
           {user && (
             <Link to="/my-loans" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
               My Books

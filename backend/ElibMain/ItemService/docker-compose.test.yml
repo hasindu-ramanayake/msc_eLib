@@ -1,0 +1,44 @@
+services:
+  item-db-test:
+    image: postgres:15-alpine
+    container_name: item-db-test
+    environment:
+      POSTGRES_DB: itemdb_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d itemdb_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  item-rabbitmq-test:
+    image: rabbitmq:3-management-alpine
+    container_name: item-rabbitmq-test
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  item-service-isolater:
+    build:
+      context: ..
+      dockerfile: ItemService/Dockerfile.test
+    container_name: item-service-isolater
+    depends_on:
+      item-db-test:
+        condition: service_healthy
+      item-rabbitmq-test:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=test
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://item-db-test:5432/itemdb_test
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_RABBITMQ_HOST=item-rabbitmq-test

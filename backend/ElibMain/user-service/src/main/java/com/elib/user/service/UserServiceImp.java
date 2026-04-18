@@ -170,6 +170,7 @@ public class UserServiceImp implements UserService {
         user.setFirstName(updateDetails.firstName());
         user.setLastName(updateDetails.lastName());
         user.setEmail(updateDetails.email());
+        user.setPhoneNumber(updateDetails.phoneNumber());
 
         // Prevent overwriting role and notification preferences with null if not provided
         if (updateDetails.role() != null) {

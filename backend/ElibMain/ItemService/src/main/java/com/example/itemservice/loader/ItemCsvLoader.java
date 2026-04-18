@@ -7,13 +7,16 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.*;
 
@@ -25,7 +28,17 @@ public class ItemCsvLoader {
     private final ItemRepository itemRepository;
     private final RabbitMQService rabbitMQService;
 
-    @PostConstruct
+    private final Environment env;
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void onApplicationReady() {
+        if (env.getActiveProfiles().length > 0 && java.util.Arrays.asList(env.getActiveProfiles()).contains("test")) {
+            return;
+        }
+        loadCsv();
+    }
+
+    // @PostConstruct
     public void loadCsv() {
 
         // Comment out for testing

@@ -14,6 +14,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import org.springframework.context.annotation.Profile;
+
+@Profile("!noauth")
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
