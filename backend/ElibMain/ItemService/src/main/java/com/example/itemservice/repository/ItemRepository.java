@@ -11,5 +11,7 @@ public interface ItemRepository extends JpaRepository<Item, UUID>{
     List<Item> findByTitleContainingIgnoreCase(String title);
     List<Item> findByAuthorContainingIgnoreCase(String author);
     Optional<Item> findByIsbn13(String isbn13);
+    boolean existsByIsbn13(String isbn13);
+    boolean existsByIsbn10(String isbn10);
 
 }

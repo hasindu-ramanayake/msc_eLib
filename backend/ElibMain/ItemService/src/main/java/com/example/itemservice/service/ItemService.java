@@ -22,6 +22,21 @@ public class ItemService {
     private final RabbitMQService rabbitMQService;
 
     public ItemDto createItem(ItemDto dto) {
+
+        if (dto.getIsbn13() != null &&
+                itemRepository.existsByIsbn13(dto.getIsbn13())) {
+
+            throw new IllegalArgumentException(
+                    "Item with ISBN13 already exists");
+        }
+
+        if (dto.getIsbn10() != null &&
+                itemRepository.existsByIsbn10(dto.getIsbn10())) {
+
+            throw new IllegalArgumentException(
+                    "Item with ISBN10 already exists");
+        }
+
         Item item = itemMapper.toEntity(dto);
         Item saved= itemRepository.save(item);
 
