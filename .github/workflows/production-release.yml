@@ -130,7 +130,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDMnMuWlqKxqg4emQHKgFWcKqP7cLpAYtwsJgJkjM+iQgFaGeO4wF6m075/WUGbPqlkFpzS8/sjY+uQJcib3Sxs1gtv3e6w6gR6i6LzH26lyOn10xAM3VD3YF6uC2l1Pws+c0l1zisAoDYnveKGpm+KPO6B8mq8r2y0Cq7P07UBvZvXtEEJYp7Zzr5fE+LEbY2evRi/gxpHvLvbQXMZLDEHWgeto9wEMiKTiXkQIVG44FsAJQH2QMSG9tcKdppbvgzl3Hi/aBVQ1GSpBkd29F0YKUqnA2A09KcgLfRBPeiNX+7ADESBwrdNFzkoA6G2xdCncU8QLSDxBkJ1j4vZDYvb farrelljac@b1106e65d63c
+          echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDMnMuWlqKxqg4emQHKgFWcKqP7cLpAYtwsJgJkjM+iQgFaGeO4wF6m075/WUGbPqlkFpzS8/sjY+uQJcib3Sxs1gtv3e6w6gR6i6LzH26lyOn10xAM3VD3YF6uC2l1Pws+c0l1zisAoDYnveKGpm+KPO6B8mq8r2y0Cq7P07UBvZvXtEEJYp7Zzr5fE+LEbY2evRi/gxpHvLvbQXMZLDEHWgeto9wEMiKTiXkQIVG44FsAJQH2QMSG9tcKdppbvgzl3Hi/aBVQ1GSpBkd29F0YKUqnA2A09KcgLfRBPeiNX+7ADESBwrdNFzkoA6G2xdCncU8QLSDxBkJ1j4vZDYvb farrelljac@b1106e65d63c" >> ~/.ssh/authorized_keys
+            
 
       - name: Execute Deployment on Server
         uses: appleboy/ssh-action@v0.1.10
