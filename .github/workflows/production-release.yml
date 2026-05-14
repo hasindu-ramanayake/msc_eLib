@@ -5,7 +5,7 @@ on:
     branches: [ "deployment_branch" ]
 
 env:
-  DOCKER_ORG: myrepo # Replace with your actual Docker Hub username
+  DOCKER_ORG: fj741 # Replace with your actual Docker Hub username
 
 jobs:
   # ==========================================
