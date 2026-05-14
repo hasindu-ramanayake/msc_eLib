@@ -2,7 +2,7 @@ name: Production Release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "deployment_branch" ]
 
 env:
   DOCKER_ORG: myrepo # Replace with your actual Docker Hub username
@@ -95,7 +95,7 @@ jobs:
     name: Deploy via SSH to VPS
     needs: [build-backends, build-frontend]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/deployment_branch'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
