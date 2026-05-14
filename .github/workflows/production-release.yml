@@ -49,7 +49,7 @@ jobs:
       - name: 🧪 Test and Build JAR (${{ matrix.service }})
         run: |
           cd backend/ElibMain
-          mvn clean package -pl ${{ matrix.service }} -am -DskipTests
+          mvn clean package -pl ${{ matrix.service }} -am -Dmaven.test.skip=true
 
       - name: 🐳 Log in to Docker Hub
         uses: docker/login-action@v2
