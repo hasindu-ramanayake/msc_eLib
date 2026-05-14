@@ -1,6 +1,7 @@
 package com.searchService.searchService.service;
 
 import com.searchService.searchService.docs.Book;
+import com.searchService.searchService.docs.CatalogType;
 import com.searchService.searchService.events.ItemEvent;
 import com.searchService.searchService.repositories.CatalogRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class ItemEventListener {
                 book.setPublished_year(event.getPublishedYear());
                 book.setLanguage(event.getLanguage());
                 book.setAge(event.getAge());
+                book.setType(CatalogType.BOOK);
 
                 // Save to Elasticsearch (update the search index)
                 System.out.println("SAVING TO ELASTICSEARCH: " + book.getTitle());
