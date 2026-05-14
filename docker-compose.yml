@@ -6,6 +6,7 @@ services:
       POSTGRES_DB: elib
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
+
     ports:
       - "5432:5432"
     healthcheck:
@@ -82,6 +83,7 @@ services:
       dockerfile: ./DiscoveryServer/Dockerfile
     ports:
       - "8761:8761"
+    image: ghcr.io/hasindu-ramanayake/elib-discovery-server:latest
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1" ]
       interval: 15s
@@ -93,6 +95,7 @@ services:
     build:
       context: ./backend/ElibMain
       dockerfile: ./user-service/Dockerfile
+    image: ghcr.io/hasindu-ramanayake/elib-user-service:latest
     ports:
       - "8081:8081"
     env_file: ./backend/ElibMain/user-service/.env
@@ -116,6 +119,7 @@ services:
     build:
       context: ./backend/ElibMain
       dockerfile: ./ApiGateway/Dockerfile
+    image: ghcr.io/hasindu-ramanayake/elib-api-gateway:latest
     ports:
       - "8765:8765"
     environment:
@@ -133,6 +137,7 @@ services:
     build:
       context: ./backend/ElibMain
       dockerfile: ./NotificationService/Dockerfile
+    image: ghcr.io/hasindu-ramanayake/elib-notification-service:latest
     ports:
       - "8082:8082"
     env_file: ./backend/ElibMain/NotificationService/.env
@@ -152,6 +157,7 @@ services:
     build:
       context: ./backend/ElibMain
       dockerfile: ./EventService/Dockerfile
+    image: ghcr.io/hasindu-ramanayake/elib-event-service:latest
     ports:
       - "8083:8083"
     environment:
@@ -165,6 +171,7 @@ services:
     build:
       context: ./backend/ElibMain
       dockerfile: ./ItemService/Dockerfile
+    image: ghcr.io/hasindu-ramanayake/elib-item-service:latest
     ports:
       - "8072:8072"
     env_file: ./backend/ElibMain/ItemService/.env
@@ -186,6 +193,7 @@ services:
     build:
       context: ./backend/ElibMain
       dockerfile: ./borrowservice/Dockerfile
+    image: ghcr.io/hasindu-ramanayake/elib-borrow-service:latest
     ports:
       - "8084:8084"
     environment:
@@ -210,6 +218,7 @@ services:
     build:
       context: ./backend/ElibMain
       dockerfile: ./BorrowBatchService/Dockerfile
+    image: ghcr.io/hasindu-ramanayake/elib-borrow-batch-service:latest
     ports:
       - "8085:8085"
     environment:
@@ -234,6 +243,7 @@ services:
     build:
       context: ./backend/ElibMain
       dockerfile: ./SearchService/Dockerfile
+    image: ghcr.io/hasindu-ramanayake/elib-search-service:latest
     ports:
       - "8080:8080"
     environment:
@@ -264,6 +274,7 @@ services:
   frontend:
     build:
       context: ./frontend
+    image: ghcr.io/hasindu-ramanayake/elib-frontend:latest
     ports:
       - "5173:80"
     depends_on:

@@ -22,7 +22,7 @@ RUN mvn -pl ItemService -am dependency:go-offline
 COPY ItemService/src ItemService/src
 
 # Build EventService
-RUN mvn -pl ItemService -DskipTests clean package
+RUN mvn -pl ItemService -Dmaven.test.skip=true clean package
 
 # Run stage
 FROM eclipse-temurin:21-jre-alpine
