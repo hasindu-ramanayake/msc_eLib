@@ -1,0 +1,163 @@
+services:
+  # Infrastructure
+  postgres:
+    image: postgres:17-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: elib
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user -d elib" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  user_db:
+    image: postgres:17-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d user_db" ]
+
+  item_db:
+    image: postgres:17-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: item_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - item_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d item_db" ]
+
+  borrow_db:
+    image: postgres:17-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: borrow_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - borrow_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d borrow_db" ]
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
+    restart: always
+    environment:
+      - "discovery.type=single-node"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    healthcheck:
+      test: [ "CMD-SHELL", "rabbitmq-diagnostics -q check_running" ]
+
+  eureka-server:
+    image: ${DOCKER_ORG:-myrepo}/elib-discovery-server:latest
+    restart: always
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1" ]
+
+  # Microservices
+  user-service:
+    image: ${DOCKER_ORG:-myrepo}/elib-user-service:latest
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://user_db:5432/user_db
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_RABBITMQ_HOST: rabbitmq
+    depends_on:
+      user_db: { condition: service_healthy }
+      eureka-server: { condition: service_healthy }
+
+  apigateway:
+    image: ${DOCKER_ORG:-myrepo}/elib-api-gateway:latest
+    restart: always
+    ports:
+      - "8765:8765"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server: { condition: service_healthy }
+
+  notification-service:
+    image: ${DOCKER_ORG:-myrepo}/elib-notification-service:latest
+    restart: always
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      rabbitmq: { condition: service_healthy }
+
+  event-service:
+    image: ${DOCKER_ORG:-myrepo}/elib-event-service:latest
+    restart: always
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server: { condition: service_healthy }
+
+  item-service:
+    image: ${DOCKER_ORG:-myrepo}/elib-item-service:latest
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://item_db:5432/item_db
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      item_db: { condition: service_healthy }
+
+  borrow-service:
+    image: ${DOCKER_ORG:-myrepo}/elib-borrowservice:latest
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://borrow_db:5432/borrow_db
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      borrow_db: { condition: service_healthy }
+
+  borrow-batch-service:
+    image: ${DOCKER_ORG:-myrepo}/elib-borrow-batch-service:latest
+    restart: always
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      borrow_db: { condition: service_healthy }
+
+  search-service:
+    image: ${DOCKER_ORG:-myrepo}/elib-search-service:latest
+    restart: always
+    environment:
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      elasticsearch: { condition: service_healthy }
+
+  frontend:
+    image: ${DOCKER_ORG:-myrepo}/elib-frontend:latest
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - apigateway
+
+volumes:
+  user_db_data:
+  item_db_data:
+  borrow_db_data:
+  es_data:

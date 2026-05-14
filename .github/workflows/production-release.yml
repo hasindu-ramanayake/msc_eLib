@@ -1,0 +1,129 @@
+name: Production Release
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  DOCKER_ORG: myrepo # Replace with your actual Docker Hub username
+
+jobs:
+  # ==========================================
+  # JOB 1: BACKEND MATRIX BUILD
+  # ==========================================
+  build-backends:
+    name: Build & Push Spring Boot Services
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - service: ApiGateway
+            image: elib-api-gateway
+          - service: BorrowBatchService
+            image: elib-borrow-batch-service
+          - service: DiscoveryServer
+            image: elib-discovery-server
+          - service: EventService
+            image: elib-event-service
+          - service: ItemService
+            image: elib-item-service
+          - service: NotificationService
+            image: elib-notification-service
+          - service: SearchService
+            image: elib-search-service
+          - service: borrowservice
+            image: elib-borrowservice
+          - service: user-service
+            image: elib-user-service
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: 🧪 Test and Build JAR (${{ matrix.service }})
+        run: |
+          cd backend/ElibMain
+          mvn clean package -pl ${{ matrix.service }} -am -DskipTests
+
+      - name: 🐳 Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: 📦 Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend/ElibMain
+          file: ./backend/ElibMain/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ env.DOCKER_ORG }}/${{ matrix.image }}:latest
+
+  # ==========================================
+  # JOB 2: FRONTEND BUILD
+  # ==========================================
+  build-frontend:
+    name: Build & Push React SPA
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: 🐳 Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: 📦 Build and Push React Image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ env.DOCKER_ORG }}/elib-frontend:latest
+
+  # ==========================================
+  # JOB 3: PRODUCTION DEPLOYMENT
+  # ==========================================
+  deploy-to-prod:
+    name: Deploy via SSH to VPS
+    needs: [build-backends, build-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Secure Copy (SCP) Compose File to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PROD_SERVER_IP }}
+          username: ${{ secrets.PROD_SERVER_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          source: "docker-compose.prod.yml"
+          target: "/opt/elib"
+
+      - name: 🚀 Execute Deployment on Server
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.PROD_SERVER_IP }}
+          username: ${{ secrets.PROD_SERVER_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            echo "Successfully connected to Production Server!"
+            cd /opt/elib
+            # Update the DOCKER_ORG variable in the environment if needed
+            export DOCKER_ORG=${{ env.DOCKER_ORG }}
+            # Pull the freshest images
+            docker-compose -f docker-compose.prod.yml pull
+            # Restart services
+            docker-compose -f docker-compose.prod.yml up -d
+            # Clean up
+            docker image prune -f
+            echo "Deployment Complete!"
