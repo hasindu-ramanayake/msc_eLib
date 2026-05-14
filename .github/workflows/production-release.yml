@@ -5,7 +5,7 @@ on:
     branches: [ "deployment_branch" ]
 
 env:
-  DOCKER_ORG: fj741 # Replace with your actual Docker Hub username
+  DOCKER_ORG: myrepo # Replace with your actual Docker Hub username
 
 jobs:
   # ==========================================
@@ -56,6 +56,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: 🧹 Clean up tests to avoid Docker build collisions
+        run: find backend/ElibMain -type d -name "test" -exec rm -rf {} +
 
       - name: 📦 Build and Push Docker Image
         uses: docker/build-push-action@v4
