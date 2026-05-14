@@ -15,14 +15,20 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "isbn13"),
+                @UniqueConstraint(columnNames = "isbn10")
+        }
+)
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", unique = true)
     private String isbn13;
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", unique = true)
     private String isbn10;
     @Column(columnDefinition = "TEXT")
     private String title;
@@ -42,9 +48,6 @@ public class Item {
     private String language;
     @Column(columnDefinition = "TEXT")
     private String age;
-//    private double averageRating;
-//    private int numPages;
-//    private int ratingsCount;
 
     private int totalStock;
 
@@ -54,8 +57,6 @@ public class Item {
     @LastModifiedDate
     private Date lastUpdated;
 
-//    @Enumerated(EnumType.STRING)
-//    private Genre genre;
 
     public void increaseStock(int quantity) {
         this.totalStock += quantity;
