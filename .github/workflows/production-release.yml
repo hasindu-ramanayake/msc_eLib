@@ -153,9 +153,9 @@ jobs:
             # ---------------------
 
             # Pull the freshest images
-            docker-compose -f docker-compose.prod.yml pull
+            sudo docker compose -f docker-compose.prod.yml pull
             # Restart services
-            docker-compose -f docker-compose.prod.yml up -d
+            sudo docker compose -f docker-compose.prod.yml up -d
             # Clean up
-            docker image prune -f
+            sudo docker image prune -f
             echo "Deployment Complete!"
