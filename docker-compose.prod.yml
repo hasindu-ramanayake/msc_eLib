@@ -5,10 +5,10 @@ services:
     restart: always
     environment:
       POSTGRES_DB: elib
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: ${PROD_DB_USER}
+      POSTGRES_PASSWORD: ${PROD_DB_PASSWORD}
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U user -d elib" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${PROD_DB_USER} -d elib" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -18,36 +18,36 @@ services:
     restart: always
     environment:
       POSTGRES_DB: user_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ${PROD_DB_USER}
+      POSTGRES_PASSWORD: ${PROD_DB_PASSWORD}
     volumes:
       - user_db_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d user_db" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${PROD_DB_USER} -d user_db" ]
 
   item_db:
     image: postgres:17-alpine
     restart: always
     environment:
       POSTGRES_DB: item_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ${PROD_DB_USER}
+      POSTGRES_PASSWORD: ${PROD_DB_PASSWORD}
     volumes:
       - item_db_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d item_db" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${PROD_DB_USER} -d item_db" ]
 
   borrow_db:
     image: postgres:17-alpine
     restart: always
     environment:
       POSTGRES_DB: borrow_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ${PROD_DB_USER}
+      POSTGRES_PASSWORD: ${PROD_DB_PASSWORD}
     volumes:
       - borrow_db_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d borrow_db" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${PROD_DB_USER} -d borrow_db" ]
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
@@ -84,6 +84,8 @@ services:
     image: ${DOCKER_ORG:-myrepo}/elib-user-service:latest
     restart: always
     environment:
+      USER_SERVICE_SPRING_DATASOURCE_USERNAME: ${PROD_DB_USER}
+      USER_SERVICE_SPRING_DATASOURCE_PASSWORD: ${PROD_DB_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://user_db:5432/user_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_RABBITMQ_HOST: rabbitmq
@@ -122,6 +124,8 @@ services:
     image: ${DOCKER_ORG:-myrepo}/elib-item-service:latest
     restart: always
     environment:
+      ITEM_SERVICE_SPRING_DATASOURCE_USERNAME: ${PROD_DB_USER}
+      ITEM_SERVICE_SPRING_DATASOURCE_PASSWORD: ${PROD_DB_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://item_db:5432/item_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
@@ -131,6 +135,8 @@ services:
     image: ${DOCKER_ORG:-myrepo}/elib-borrowservice:latest
     restart: always
     environment:
+      SPRING_DATASOURCE_USERNAME: ${PROD_DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${PROD_DB_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://borrow_db:5432/borrow_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
@@ -140,6 +146,8 @@ services:
     image: ${DOCKER_ORG:-myrepo}/elib-borrow-batch-service:latest
     restart: always
     environment:
+      SPRING_DATASOURCE_USERNAME: ${PROD_DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${PROD_DB_PASSWORD}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
       - borrow_db
