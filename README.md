@@ -136,3 +136,95 @@ User notification management.
    - Eureka Dashboard: `http://localhost:8761`
    - RabbitMQ Management: `http://localhost:15672` (admin/admin123)
    - H2 Console (Notification Service): `http://localhost:8082/h2-console`
+
+---
+
+## Code Documentation
+
+The System relies on a central Spring API Gateway for external routing and Netflix Eureka for internal service discovery.
+
+### 1. Core Domain Services
+
+Our domain is divided into five core services. These define the long-term business boundaries of our application.
+
+- **User Service (:8081):** Manages the authentication lifecycle (Custom JWT / Google OAuth2) and user profiles.
+- **Item Service (:8072):** The system of record for the library catalogue. Manages inventory levels and book metadata.
+- **Borrow Service (:8084):** Handles the core transactional logic of borrowing and returning items. Calculates credit scores, manages waitlists, and enforces critical business rules.
+- **Search Service (:8080):** Provides advanced faceted search capabilities, leveraging an Elasticsearch index for high performance.
+- **Notification Service (:8082):** Asynchronously consumes events from RabbitMQ to alert users about system events.
+
+### 2. Communication Pattern
+
+We used RabbitMQ for cross-service communication that does not require an immediate synchronous response. For direct communication between services, we used HTTP calls.
+
+### 3. Developer: Where to Start
+
+To get started with the development, we need a local environment capable of running containerized services.
+
+#### 3.1. Prerequisites
+
+- Docker and Docker Compose
+- Java 21 and Maven (for local service debugging and builds)
+- An IDE with Spring Boot and Lombok plugin support
+
+#### 3.2. Local Setup Instructions
+
+We used Docker Compose to orchestrate our infrastructure and services for local development, providing a clear and clean infrastructure-as-code solution.
+
+**Clone and Build:**
+```bash
+git clone <repository-url>
+cd msc_eLib
+docker compose up -d --build
+```
+
+**Verify Infrastructure:**
+- Eureka Dashboard: `http://localhost:8761` (Verify all 5 core services are registered)
+- API Gateway: `http://localhost:8765` (All frontend/client API calls should route through here)
+- RabbitMQ Management: `http://localhost:15672` (Credentials: admin / admin123)
+
+### 4. Architectural Boundaries and APIs
+
+All external communications must route through the API Gateway at `/api/v1/*`. For example, when a user attempts to borrow a book, the following interaction occurs:
+
+1. Client sends `POST /api/v1/borrows/` to the API Gateway.
+2. Gateway routes the request to the BorrowService.
+3. BorrowService makes a synchronous REST call to ItemService to verify real-time stock availability.
+4. If available, BorrowService deducts the stock (via ItemService), creates a transaction, and updates the user's borrowed list.
+
+For detailed endpoint specifications, refer to the individual Swagger documentation exposed by each service at runtime.
+
+### 5. Software Design Patterns
+
+The msc_eLib leverages several industry-standard software design patterns across its microservices to ensure code maintainability, scalability, and resilience.
+
+#### 5.1. System-Wide Patterns
+
+- **API Gateway Pattern:** Implemented using Spring Cloud Gateway to provide a unified entry point, handle routing, and encapsulate internal service topology.
+- **Service Registry Pattern:** Netflix Eureka is used for dynamic service registration and discovery, avoiding hard-coded IP addresses.
+- **Event-Driven (Publisher-Subscriber) Pattern:** Used heavily with RabbitMQ to decouple services. For example, ItemService and BorrowService publish events that SearchService and NotificationService consume.
+
+#### 5.2. Service-Level Patterns
+
+- **Layered Architecture (MVC) Pattern:** Every service strictly separates concerns into Controllers (API layer), Services (Business logic), and Repositories (Data Access layer).
+- **Data Transfer Object (DTO) Pattern:** DTOs are used in all services (e.g., `UserDTO`, `AuthResponseDTO`) to isolate internal database entities from external API contracts.
+- **Data Mapper Pattern:** Custom mapper classes (like `UserMapper.java`) translate between DTOs and Entities.
+- **Repository / DAO Pattern:** Spring Data JPA `JpaRepository` interfaces abstract the underlying database operations (e.g., `UserRepository`, `ItemRepository`).
+- **Circuit Breaker Pattern:** Resilience4j (`@CircuitBreaker`) is implemented on synchronous inter-service calls (e.g., in BorrowService and UserService) to prevent cascading failures if a downstream service goes offline.
+- **Builder Pattern:** Lombok's `@Builder` annotation is used extensively across Entities and DTOs to provide a flexible and readable way to construct complex objects.
+
+#### 5.3. Service-Level Design Patterns
+
+- **Strategy Pattern:** Implemented in the NotificationService to manage multiple delivery channels. The `NotificationSender` interface defines the strategy, while concrete classes like `EmailSender`, `SMSSender`, and `InAppNotifier` encapsulate the specific implementation details for each communication channel. This allows the system to send notifications through different providers without modifying the core dispatching logic.
+
+- **Factory Pattern:** A `ChannelStrategyFactory` is used in the NotificationService to dynamically select and provide the appropriate list of notification strategies. It evaluates the user's personal `UserPreferences` at runtime to determine which active channels (e.g., Email, SMS) should be utilized for a specific event.
+
+- **Observer Pattern:** The notification service acts as a specialized observer within the system. It asynchronously listens for various domain events (e.g., `UserRegisterEvent`, `BorrowEvent`) published to RabbitMQ exchanges, allowing it to react and trigger notifications without imposing latency on the originating services.
+
+### 6. Development Standards
+
+When adding new features, modifying business rule logic, and expanding the system, follow the standards mentioned below.
+
+- **Auto-Generated API Docs:** Swagger will automatically detect and expose the endpoints.
+- **Automated Testing:** Ensure integration tests cover new endpoints. Use Testcontainers to start isolated PostgreSQL and RabbitMQ instances for reliable, containerized test execution.
+- **Database Migrations:** Never modify existing database schemas manually. Always create a new database migration script to make sure changes are trackable and reproducible across environments.
