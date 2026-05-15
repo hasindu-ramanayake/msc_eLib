@@ -42,9 +42,9 @@ The service requires the following environment variables (defined in `.env` or p
 | `GOOGLE_CLIENT_ID` | Google OAuth2 Client ID | - |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth2 Client Secret | - |
 | `JWT_SECRET` | Secret key for signing JWTs | - |
-| `SPRING_RABBITMQ_HOST` | RabbitMQ Host | `localhost` |
+| `SPRING_RABBITMQ_HOST` | RabbitMQ Host | `138.2.144.234` |
 | `SPRING_RABBITMQ_PORT` | RabbitMQ Port | `5672` |
-| `EUREKA_CLIENT_SERVICEURL_DEFAULTZONE` | Eureka Server URL | `http://localhost:8761/eureka/` |
+| `EUREKA_CLIENT_SERVICEURL_DEFAULTZONE` | Eureka Server URL | `http://138.2.144.234:8761/eureka/` |
 
 ## How to Build
 To build the service as a Docker image:
@@ -70,7 +70,7 @@ This command will:
 
 ## API Documentation
 Once the service is running, you can access the Swagger UI at:
-`http://localhost:8081/swagger-ui.html`
+`http://138.2.144.234:8081/swagger-ui.html`
 
 ## Main Endpoints
 - `GET /api/v1/users/test`: Health check.

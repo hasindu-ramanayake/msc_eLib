@@ -8,12 +8,12 @@ docker compose up -d frontend
 
 
 Service Access
-Frontend: http://localhost:5173
-Api Gateway: http://localhost:8765
-Search Service: http://localhost:8080 (Internal: http://search-service:8080)
-Notification Service: http://localhost:8082
-Eureka Dashboard: http://localhost:8761
-Elasticsearch: http://localhost:9200
+Frontend: http://138.2.144.234:5173
+Api Gateway: http://138.2.144.234:8765
+Search Service: http://138.2.144.234:8080 (Internal: http://search-service:8080)
+Notification Service: http://138.2.144.234:8082
+Eureka Dashboard: http://138.2.144.234:8761
+Elasticsearch: http://138.2.144.234:9200
 
 Dummy Logging Data
 

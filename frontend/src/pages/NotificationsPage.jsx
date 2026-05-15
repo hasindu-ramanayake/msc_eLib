@@ -4,7 +4,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8765/"
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://138.2.144.234:8765/"
 
 const TYPE_CONFIG = {
     REMINDER: {
@@ -115,11 +115,10 @@ const NotificationsPage = () => {
                             <button
                                 key={t}
                                 onClick={() => setFilter(t)}
-                                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-                                    active
+                                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${active
                                         ? 'bg-blue-600 text-white border-blue-600'
                                         : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
-                                }`}
+                                    }`}
                             >
                                 {cfg ? cfg.label : 'All'}
                             </button>
@@ -162,13 +161,12 @@ const NotificationsPage = () => {
                                         </div>
 
                                         {/* Status */}
-                                        <span className={`text-xs font-medium flex-shrink-0 px-2 py-0.5 rounded-full ${
-                                            n.status === 'SENT'
+                                        <span className={`text-xs font-medium flex-shrink-0 px-2 py-0.5 rounded-full ${n.status === 'SENT'
                                                 ? 'bg-green-100 text-green-700'
                                                 : n.status === 'FAILED'
                                                     ? 'bg-red-100 text-red-700'
                                                     : 'bg-gray-100 text-gray-500'
-                                        }`}>
+                                            }`}>
                                             {n.status}
                                         </span>
                                     </div>

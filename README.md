@@ -55,7 +55,7 @@ graph TD
 
 ## API Reference
 
-The unified entry point is the **API Gateway** at `http://localhost:8765`.
+The unified entry point is the **API Gateway** at `http://138.2.144.234:8765`.
 
 ### 1. User Service (`/api/v1/users`)
 Handles registration, authentication, and profile management.
@@ -132,7 +132,7 @@ User notification management.
    docker compose up -d --build
    ```
 3. **Access Services**:
-   - Central Gateway: `http://localhost:8765`
-   - Eureka Dashboard: `http://localhost:8761`
-   - RabbitMQ Management: `http://localhost:15672` (admin/admin123)
-   - H2 Console (Notification Service): `http://localhost:8082/h2-console`
+   - Central Gateway: `http://138.2.144.234:8765`
+   - Eureka Dashboard: `http://138.2.144.234:8761`
+   - RabbitMQ Management: `http://138.2.144.234:15672` (admin/admin123)
+   - H2 Console (Notification Service): `http://138.2.144.234:8082/h2-console`

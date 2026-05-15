@@ -18,7 +18,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({"test", "noauth"})
+@ActiveProfiles({ "test", "noauth" })
 class UserIntegrationTest {
 
     @LocalServerPort
@@ -33,21 +33,20 @@ class UserIntegrationTest {
     @BeforeEach
     void setUp() {
         client = HttpClient.newHttpClient();
-        baseUrl = "http://localhost:" + port + "/api/v1/users";
+        baseUrl = "http://138.2.144.234:" + port + "/api/v1/users";
     }
 
     @Test
     void shouldRegisterUser() throws Exception {
         String email = "reg-" + System.currentTimeMillis() + "@example.com";
         Map<String, Object> user = Map.of(
-            "firstName", "John",
-            "lastName", "Doe",
-            "email", email,
-            "password", "password123",
-            "phoneNumber", "1234567890",
-            "role", "CUSTOMER",
-            "notificationPreferences", Set.of("EMAIL")
-        );
+                "firstName", "John",
+                "lastName", "Doe",
+                "email", email,
+                "password", "password123",
+                "phoneNumber", "1234567890",
+                "role", "CUSTOMER",
+                "notificationPreferences", Set.of("EMAIL"));
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + "/register"))
@@ -69,9 +68,8 @@ class UserIntegrationTest {
         registerUser(email, "password123");
 
         Map<String, String> creds = Map.of(
-            "email", email,
-            "password", "password123"
-        );
+                "email", email,
+                "password", "password123");
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + "/login"))
@@ -109,13 +107,12 @@ class UserIntegrationTest {
     void shouldFetchUserById() throws Exception {
         String email = "id-" + System.currentTimeMillis() + "@example.com";
         Map<String, Object> user = Map.of(
-            "firstName", "Jane",
-            "lastName", "Smith",
-            "email", email,
-            "password", "password123",
-            "phoneNumber", "0987654321",
-            "role", "CUSTOMER"
-        );
+                "firstName", "Jane",
+                "lastName", "Smith",
+                "email", email,
+                "password", "password123",
+                "phoneNumber", "0987654321",
+                "role", "CUSTOMER");
 
         HttpRequest regReq = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + "/register"))
@@ -143,13 +140,12 @@ class UserIntegrationTest {
         String token = loginAndGetToken(email, "password123");
 
         Map<String, Object> updateRequest = Map.of(
-            "firstName", "Johnny",
-            "lastName", "User",
-            "email", email,
-            "role", "CUSTOMER",
-            "phoneNumber", "5555555555",
-            "notificationPreferences", Set.of("EMAIL", "SMS")
-        );
+                "firstName", "Johnny",
+                "lastName", "User",
+                "email", email,
+                "role", "CUSTOMER",
+                "phoneNumber", "5555555555",
+                "notificationPreferences", Set.of("EMAIL", "SMS"));
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + "/edit-profile"))
@@ -164,7 +160,7 @@ class UserIntegrationTest {
         Map responseBody = objectMapper.readValue(response.body(), Map.class);
         assertEquals("Johnny", responseBody.get("firstName"));
         assertEquals("5555555555", responseBody.get("phoneNumber"));
-        
+
         String prefsStr = responseBody.get("notificationPreferences").toString();
         assertTrue(prefsStr.contains("EMAIL"));
         assertTrue(prefsStr.contains("SMS"));
@@ -172,12 +168,11 @@ class UserIntegrationTest {
 
     private void registerUser(String email, String password) throws Exception {
         Map<String, Object> user = Map.of(
-            "firstName", "Test",
-            "lastName", "User",
-            "email", email,
-            "password", password,
-            "role", "CUSTOMER"
-        );
+                "firstName", "Test",
+                "lastName", "User",
+                "email", email,
+                "password", password,
+                "role", "CUSTOMER");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + "/register"))
                 .header("Content-Type", "application/json")

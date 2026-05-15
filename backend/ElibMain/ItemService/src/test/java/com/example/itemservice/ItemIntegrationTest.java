@@ -20,7 +20,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({"test", "noauth"})
+@ActiveProfiles({ "test", "noauth" })
 class ItemIntegrationTest {
 
     @LocalServerPort
@@ -35,7 +35,7 @@ class ItemIntegrationTest {
     @BeforeEach
     void setUp() {
         client = HttpClient.newHttpClient();
-        baseUrl = "http://localhost:" + port + "/api/v1/item";
+        baseUrl = "http://138.2.144.234:" + port + "/api/v1/item";
     }
 
     @Test

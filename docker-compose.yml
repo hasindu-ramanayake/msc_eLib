@@ -72,7 +72,7 @@ services:
     volumes:
       - es_data:/usr/share/elasticsearch/data
     healthcheck:
-      test: [ "CMD-SHELL", "curl -s http://localhost:9200/_cluster/health || exit 1" ]
+      test: [ "CMD-SHELL", "curl -s http://138.2.144.234:9200/_cluster/health || exit 1" ]
       interval: 15s
       timeout: 10s
       retries: 10
@@ -85,7 +85,7 @@ services:
       - "8761:8761"
     image: ghcr.io/hasindu-ramanayake/elib-discovery-server:latest
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1" ]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://138.2.144.234:8761/actuator/health || exit 1" ]
       interval: 15s
       timeout: 10s
       retries: 5

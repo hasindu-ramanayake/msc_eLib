@@ -4,19 +4,19 @@ import { BellIcon } from '@heroicons/react/24/outline';
 import { BellAlertIcon } from '@heroicons/react/24/solid';
 import { useAuth } from '../context/AuthContext';
 
-const API_BASE = 'http://localhost:8082';
+const API_BASE = 'http://138.2.144.234:8082';
 
 const TYPE_STYLES = {
-    REMINDER:           { bg: 'bg-blue-50',   dot: 'bg-blue-500',   label: 'Reminder'  },
-    OVERDUE:            { bg: 'bg-red-50',    dot: 'bg-red-500',    label: 'Overdue'   },
-    WAITLIST_AVAILABLE: { bg: 'bg-green-50',  dot: 'bg-green-500',  label: 'Available' },
-    CREDIT_LOW:         { bg: 'bg-amber-50',  dot: 'bg-amber-500',  label: 'Credit'    },
+    REMINDER: { bg: 'bg-blue-50', dot: 'bg-blue-500', label: 'Reminder' },
+    OVERDUE: { bg: 'bg-red-50', dot: 'bg-red-500', label: 'Overdue' },
+    WAITLIST_AVAILABLE: { bg: 'bg-green-50', dot: 'bg-green-500', label: 'Available' },
+    CREDIT_LOW: { bg: 'bg-amber-50', dot: 'bg-amber-500', label: 'Credit' },
 };
 
 const timeAgo = (dateStr) => {
     const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
-    if (diff < 60)    return 'just now';
-    if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
     if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
     return `${Math.floor(diff / 86400)}d ago`;
 };
@@ -30,7 +30,7 @@ const NotificationBell = () => {
     const { user } = useAuth();  // get logged in user
 
     const userId = user?.id;       // true userId
-    const token  = user?.token;    // true JWT
+    const token = user?.token;    // true JWT
 
     const unreadCount = notifications.filter(n => n.status === 'SENT').length;
 

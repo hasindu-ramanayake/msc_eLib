@@ -26,7 +26,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                         Authentication authentication) throws IOException, ServletException {
+            Authentication authentication) throws IOException, ServletException {
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
@@ -34,7 +34,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found after OAuth2 login"));
 
-        // Determine if this was a registration or a login based on the intent cookie set by the frontend
+        // Determine if this was a registration or a login based on the intent cookie
+        // set by the frontend
         boolean isRegistration = false;
         jakarta.servlet.http.Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -57,12 +58,12 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String targetUrl;
         if (isRegistration) {
             log.info("Google registration successful for: {}. Redirecting to login page.", email);
-            targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/login")
+            targetUrl = UriComponentsBuilder.fromUriString("http://138.2.144.234:5173/login")
                     .queryParam("registered", "true")
                     .build().toUriString();
         } else {
             log.info("Google login successful for: {}. Redirecting to home.", email);
-            targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/oauth2/redirect")
+            targetUrl = UriComponentsBuilder.fromUriString("http://138.2.144.234:5173/oauth2/redirect")
                     .queryParam("token", token)
                     .queryParam("refreshToken", refreshToken)
                     .queryParam("email", user.getEmail())
@@ -75,4 +76,4 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
-}
+}

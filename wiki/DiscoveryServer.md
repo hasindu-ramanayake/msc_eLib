@@ -9,7 +9,7 @@ The `DiscoveryServer` is the central registry for all microservices in the `msc_
 
 ## Dashboard
 The Eureka dashboard is accessible at:
-- `http://localhost:8761` (Local)
+- `http://138.2.144.234:8761` (Local)
 - `http://discovery-server:8761` (Within Docker network)
 
 ## Configuration
