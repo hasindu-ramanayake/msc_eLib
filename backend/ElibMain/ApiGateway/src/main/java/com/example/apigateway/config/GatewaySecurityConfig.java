@@ -60,6 +60,9 @@ public class GatewaySecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/v1/item/**").hasAnyRole("STAFF", "ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/v1/item/**").hasAnyRole("STAFF", "ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/v1/item/**").hasAnyRole("STAFF", "ADMIN")
+
+                        // Staff & Admin Borrow Management
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/borrows").hasAnyRole("STAFF", "ADMIN")
                         
                         // All other authenticated requests
                         .anyRequest().hasAnyRole("CUSTOMER", "ADMIN", "STAFF") // Added STAFF role to allow profile updates and general access
