@@ -103,6 +103,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Prepare Server Directory
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            sudo mkdir -p /opt/elib
+            sudo chown ${{ secrets.SERVER_USER }}:${{ secrets.SERVER_USER }} /opt/elib
+            sudo chmod 755 /opt/elib
+
       - name: Secure Copy (SCP) Compose File to Server
         uses: appleboy/scp-action@master
         with:

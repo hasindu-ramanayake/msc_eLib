@@ -54,7 +54,7 @@ const ItemFormModal = ({ item, isOpen, onClose, onSuccess }) => {
         setError(null);
 
         try {
-            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+            const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
             const url = item 
                 ? `${baseUrl}/api/v1/item/${item.itemId}`
                 : `${baseUrl}/api/v1/item`;

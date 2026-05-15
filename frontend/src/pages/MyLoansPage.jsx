@@ -6,7 +6,7 @@ import LoanItem from '../components/LoanItem';
 import WaitlistItem from '../components/WaitlistItem';
 import { useAuth } from '../context/AuthContext';
 
-const BORROW_API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+const BORROW_API = import.meta.env.VITE_API_BASE_URL || '';
 
 const LOAN_FILTERS = ['ALL', 'ACTIVE', 'OVERDUE', 'RETURNED'];
 const LOAN_LABELS = { ALL: 'All Loans', ACTIVE: 'Active', OVERDUE: 'Overdue', RETURNED: 'Returned' };

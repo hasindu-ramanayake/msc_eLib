@@ -12,6 +12,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      "/oauth2": {
+        target: "http://localhost:8765",
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });

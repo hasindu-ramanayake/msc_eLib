@@ -24,7 +24,7 @@ const Login = () => {
 
     try {
       // Send login request to the API Gateway
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
       const response = await fetch(`${baseUrl}/api/v1/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -147,7 +147,7 @@ const Login = () => {
                         onClick={() => {
                           // Set a cookie to indicate intent for the backend
                           document.cookie = "oauth_intent=login; path=/; max-age=300";
-                          const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+                          const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
                           window.location.href = `${baseUrl}/oauth2/authorization/google`;
                         }}
                         className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"

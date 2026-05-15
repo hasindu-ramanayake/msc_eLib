@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-const BORROW_API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+const BORROW_API = import.meta.env.VITE_API_BASE_URL || '';
 
 const STATUS_BADGE = {
     ACTIVE: 'bg-emerald-100 text-emerald-700',

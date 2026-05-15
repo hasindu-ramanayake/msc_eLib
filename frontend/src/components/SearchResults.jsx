@@ -20,7 +20,7 @@ const SearchResults = () => {
       setLoading(true);
       try {
         const keyword = query || '';
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
         // Base backend URL for SearchService via ApiGateway
         let url = `${baseUrl}/api/v1/search?keyword=${encodeURIComponent(keyword)}`;
         

@@ -33,7 +33,7 @@ const AdminPage = () => {
         console.log('[AdminPage] Fetching users...');
         setLoading(true);
         try {
-            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+            const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
             const response = await fetch(`${baseUrl}/api/v1/users`, {
                 headers: {
                     'Authorization': `Bearer ${user.token}`
@@ -76,7 +76,7 @@ const AdminPage = () => {
 
         setDeleteLoading(userId);
         try {
-            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+            const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
             const response = await fetch(`${baseUrl}/api/v1/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
@@ -101,7 +101,7 @@ const AdminPage = () => {
         if (!window.confirm('This will trigger a CSV load into the item database. Proceed?')) return;
         setRepopulateLoading(true);
         try {
-            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8765';
+            const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
             const response = await fetch(`${baseUrl}/api/v1/item/load-csv`, {
                 method: 'POST',
                 headers: {
