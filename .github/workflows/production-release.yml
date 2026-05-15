@@ -145,6 +145,13 @@ jobs:
             export TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}
             export TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}
             export TWILIO_FROM_NUMBER=${{ secrets.TWILIO_FROM_NUMBER }}
+            
+            # --- DEBUG SECRETS ---
+            if [ -z "$PROD_DB_USER" ]; then echo "DEBUG: ❌ PROD_DB_USER is completely empty!"; else echo "DEBUG: ✅ PROD_DB_USER is securely populated."; fi
+            if [ -z "$PROD_DB_PASSWORD" ]; then echo "DEBUG: ❌ PROD_DB_PASSWORD is completely empty!"; else echo "DEBUG: ✅ PROD_DB_PASSWORD is securely populated."; fi
+            if [ -z "$JWT_SECRET" ]; then echo "DEBUG: ❌ JWT_SECRET is completely empty!"; else echo "DEBUG: ✅ JWT_SECRET is securely populated."; fi
+            # ---------------------
+
             # Pull the freshest images
             docker-compose -f docker-compose.prod.yml pull
             # Restart services
