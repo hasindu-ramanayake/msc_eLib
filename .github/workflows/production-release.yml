@@ -136,6 +136,15 @@ jobs:
             export DOCKER_ORG=${{ secrets.DOCKER_ORG || secrets.DOCKER_USERNAME }}
             export PROD_DB_USER=${{ secrets.PROD_DB_USER }}
             export PROD_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
+            export JWT_SECRET=${{ secrets.JWT_SECRET }}
+            export GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            export GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            export VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}
+            export MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+            export MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            export TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}
+            export TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}
+            export TWILIO_FROM_NUMBER=${{ secrets.TWILIO_FROM_NUMBER }}
             # Pull the freshest images
             docker-compose -f docker-compose.prod.yml pull
             # Restart services

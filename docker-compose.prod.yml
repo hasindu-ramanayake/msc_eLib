@@ -86,7 +86,10 @@ services:
     environment:
       USER_SERVICE_SPRING_DATASOURCE_USERNAME: ${PROD_DB_USER}
       USER_SERVICE_SPRING_DATASOURCE_PASSWORD: ${PROD_DB_PASSWORD}
-      SPRING_DATASOURCE_URL: jdbc:postgresql://user_db:5432/user_db
+      USER_SERVICE_SPRING_DATASOURCE_URL: jdbc:postgresql://user_db:5432/user_db
+      JWT_SECRET: ${JWT_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-""}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-""}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
@@ -109,6 +112,11 @@ services:
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_FROM_NUMBER: ${TWILIO_FROM_NUMBER}
     depends_on:
       - rabbitmq
 
@@ -126,7 +134,7 @@ services:
     environment:
       ITEM_SERVICE_SPRING_DATASOURCE_USERNAME: ${PROD_DB_USER}
       ITEM_SERVICE_SPRING_DATASOURCE_PASSWORD: ${PROD_DB_PASSWORD}
-      SPRING_DATASOURCE_URL: jdbc:postgresql://item_db:5432/item_db
+      ITEM_SERVICE_SPRING_DATASOURCE_URL: jdbc:postgresql://item_db:5432/item_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
       - item_db
@@ -135,6 +143,7 @@ services:
     image: ${DOCKER_ORG:-myrepo}/elib-borrowservice:latest
     restart: always
     environment:
+      SERVER_PORT: 8084
       SPRING_DATASOURCE_USERNAME: ${PROD_DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${PROD_DB_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://borrow_db:5432/borrow_db
@@ -146,6 +155,7 @@ services:
     image: ${DOCKER_ORG:-myrepo}/elib-borrow-batch-service:latest
     restart: always
     environment:
+      SERVER_PORT: 8085
       SPRING_DATASOURCE_USERNAME: ${PROD_DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${PROD_DB_PASSWORD}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
