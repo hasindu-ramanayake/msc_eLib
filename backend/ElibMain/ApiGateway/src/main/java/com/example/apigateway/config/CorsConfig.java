@@ -19,7 +19,7 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         log.info("Initializing CORS configuration for ApiGateway");
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://138.2.144.234");
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://138.2.144.234"));
         // Specifies the HTTP methods that are allowed for cross-origin requests
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         // Specifies the HTTP headers that are allowed for cross-origin requests
