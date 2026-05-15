@@ -4,7 +4,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
 
-const API_BASE = 'http://localhost:8082';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8765/"
 
 const TYPE_CONFIG = {
     REMINDER: {
