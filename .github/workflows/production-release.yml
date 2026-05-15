@@ -91,7 +91,7 @@ jobs:
           push: true
           tags: ${{ env.DOCKER_ORG }}/elib-frontend:latest
           build-args: |
-            VITE_API_URL=http://138.2.144.234:8765
+            VITE_API_BASE_URL=http://138.2.144.234:8765
 
   # ==========================================
   # JOB 3: PRODUCTION DEPLOYMENT
