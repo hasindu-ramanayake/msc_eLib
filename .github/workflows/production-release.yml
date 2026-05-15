@@ -132,30 +132,25 @@ jobs:
           script: |
             echo "Successfully connected to Production Server!"
             cd /opt/elib
-            # Update the DOCKER_ORG variable in the environment if needed
-            export DOCKER_ORG=${{ secrets.DOCKER_ORG || secrets.DOCKER_USERNAME }}
-            export PROD_DB_USER=${{ secrets.PROD_DB_USER }}
-            export PROD_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
-            export JWT_SECRET=${{ secrets.JWT_SECRET }}
-            export GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-            export GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
-            export VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}
-            export MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
-            export MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
-            export TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}
-            export TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}
-            export TWILIO_FROM_NUMBER=${{ secrets.TWILIO_FROM_NUMBER }}
-            
-            # --- DEBUG SECRETS ---
-            if [ -z "$PROD_DB_USER" ]; then echo "DEBUG: ❌ PROD_DB_USER is completely empty!"; else echo "DEBUG: ✅ PROD_DB_USER is securely populated."; fi
-            if [ -z "$PROD_DB_PASSWORD" ]; then echo "DEBUG: ❌ PROD_DB_PASSWORD is completely empty!"; else echo "DEBUG: ✅ PROD_DB_PASSWORD is securely populated."; fi
-            if [ -z "$JWT_SECRET" ]; then echo "DEBUG: ❌ JWT_SECRET is completely empty!"; else echo "DEBUG: ✅ JWT_SECRET is securely populated."; fi
-            # ---------------------
+            # Generate .env file to completely bypass sudo environment stripping
+            echo "DOCKER_ORG=${{ secrets.DOCKER_ORG || secrets.DOCKER_USERNAME }}" > .env
+            echo "PROD_DB_USER=${{ secrets.PROD_DB_USER }}" >> .env
+            echo "PROD_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}" >> .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+            echo "VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}" >> .env
+            echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
+            echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
+            echo "TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}" >> .env
+            echo "TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}" >> .env
+            echo "TWILIO_FROM_NUMBER=${{ secrets.TWILIO_FROM_NUMBER }}" >> .env
+            chmod 600 .env
 
             # Pull the freshest images
-            sudo -E docker compose -f docker-compose.prod.yml pull
+            sudo docker compose -f docker-compose.prod.yml pull
             # Restart services
-            sudo -E docker compose -f docker-compose.prod.yml up -d
+            sudo docker compose -f docker-compose.prod.yml up -d
             # Clean up
             sudo docker image prune -f
             echo "Deployment Complete!"
