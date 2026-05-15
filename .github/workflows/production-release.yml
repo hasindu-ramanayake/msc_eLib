@@ -5,7 +5,7 @@ on:
     branches: [ "deployment_branch" ]
 
 env:
-  DOCKER_ORG: ${{ secrets.DOCKER_ORG }}
+  DOCKER_ORG: ${{ secrets.DOCKER_ORG || secrets.DOCKER_USERNAME }}
 
 jobs:
   # ==========================================

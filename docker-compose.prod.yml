@@ -99,7 +99,7 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
-      eureka-server: { condition: service_healthy }
+      - eureka-server
 
   notification-service:
     image: ${DOCKER_ORG:-myrepo}/elib-notification-service:latest
@@ -116,7 +116,7 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
-      eureka-server: { condition: service_healthy }
+      - eureka-server
 
   item-service:
     image: ${DOCKER_ORG:-myrepo}/elib-item-service:latest
@@ -134,7 +134,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://borrow_db:5432/borrow_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
-      borrow_db: { condition: service_healthy }
+      - borrow_db
 
   borrow-batch-service:
     image: ${DOCKER_ORG:-myrepo}/elib-borrow-batch-service:latest
