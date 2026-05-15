@@ -4,8 +4,6 @@ on:
   push:
     branches: [ "deployment_branch" ]
 
-env:
-  DOCKER_ORG: ${{ secrets.DOCKER_ORG || secrets.DOCKER_USERNAME }}
 
 jobs:
   # ==========================================
@@ -66,7 +64,7 @@ jobs:
           context: ./backend/ElibMain
           file: ./backend/ElibMain/${{ matrix.service }}/Dockerfile
           push: true
-          tags: ${{ env.DOCKER_ORG }}/${{ matrix.image }}:latest
+          tags: ${{ secrets.DOCKER_ORG || secrets.DOCKER_USERNAME }}/${{ matrix.image }}:latest
 
   # ==========================================
   # JOB 2: FRONTEND BUILD
@@ -89,7 +87,7 @@ jobs:
         with:
           context: ./frontend
           push: true
-          tags: ${{ env.DOCKER_ORG }}/elib-frontend:latest
+          tags: ${{ secrets.DOCKER_ORG || secrets.DOCKER_USERNAME }}/elib-frontend:latest
           build-args: |
             VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}
 
@@ -135,7 +133,7 @@ jobs:
             echo "Successfully connected to Production Server!"
             cd /opt/elib
             # Update the DOCKER_ORG variable in the environment if needed
-            export DOCKER_ORG=${{ env.DOCKER_ORG }}
+            export DOCKER_ORG=${{ secrets.DOCKER_ORG || secrets.DOCKER_USERNAME }}
             export PROD_DB_USER=${{ secrets.PROD_DB_USER }}
             export PROD_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
             # Pull the freshest images
