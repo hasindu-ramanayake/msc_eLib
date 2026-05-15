@@ -93,8 +93,10 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
-      - user_db
-      - eureka-server
+      user_db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
 
   apigateway:
     image: ${DOCKER_ORG:-myrepo}/elib-api-gateway:latest
@@ -104,7 +106,8 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
-      - eureka-server
+      eureka-server:
+        condition: service_healthy
 
   notification-service:
     image: ${DOCKER_ORG:-myrepo}/elib-notification-service:latest
@@ -118,7 +121,10 @@ services:
       TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
       TWILIO_FROM_NUMBER: ${TWILIO_FROM_NUMBER}
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
 
   event-service:
     image: ${DOCKER_ORG:-myrepo}/elib-event-service:latest
@@ -126,7 +132,8 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
-      - eureka-server
+      eureka-server:
+        condition: service_healthy
 
   item-service:
     image: ${DOCKER_ORG:-myrepo}/elib-item-service:latest
@@ -137,7 +144,8 @@ services:
       ITEM_SERVICE_SPRING_DATASOURCE_URL: jdbc:postgresql://item_db:5432/item_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
-      - item_db
+      item_db:
+        condition: service_healthy
 
   borrow-service:
     image: ${DOCKER_ORG:-myrepo}/elib-borrowservice:latest
@@ -148,8 +156,12 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${PROD_DB_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://borrow_db:5432/borrow_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
-      - borrow_db
+      borrow_db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   borrow-batch-service:
     image: ${DOCKER_ORG:-myrepo}/elib-borrow-batch-service:latest
@@ -159,9 +171,14 @@ services:
       SPRING_DATASOURCE_USERNAME: ${PROD_DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${PROD_DB_PASSWORD}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
-      - borrow_db
-      - eureka-server
+      borrow_db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   search-service:
     image: ${DOCKER_ORG:-myrepo}/elib-search-service:latest
@@ -170,8 +187,10 @@ services:
       SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
-      - elasticsearch
-      - eureka-server
+      elasticsearch:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
 
   frontend:
     image: ${DOCKER_ORG:-myrepo}/elib-frontend:latest
