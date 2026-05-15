@@ -72,8 +72,8 @@ services:
     volumes:
       - es_data:/usr/share/elasticsearch/data
     healthcheck:
-      test: [ "CMD-SHELL", "curl -s http://138.2.144.234:9200/_cluster/health || exit 1" ]
-      interval: 15s
+      test: [ "CMD-SHELL", "curl -f http://localhost:9200/ || exit 1" ]
+      interval: 20s
       timeout: 10s
       retries: 10
 
@@ -85,7 +85,7 @@ services:
       - "8761:8761"
     image: ghcr.io/hasindu-ramanayake/elib-discovery-server:latest
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://138.2.144.234:8761/actuator/health || exit 1" ]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1" ]
       interval: 15s
       timeout: 10s
       retries: 5
@@ -108,12 +108,9 @@ services:
       SPRING_RABBITMQ_USERNAME: admin
       SPRING_RABBITMQ_PASSWORD: admin123
     depends_on:
-      user_db:
-        condition: service_healthy
-      eureka-server:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+      - user_db
+      - eureka-server
+      - rabbitmq
 
   apigateway:
     build:
@@ -128,10 +125,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: password
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
-      postgres:
-        condition: service_healthy
-      eureka-server:
-        condition: service_healthy
+      - postgres
+      - eureka-server
 
   notification-service:
     build:
@@ -148,10 +143,8 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       USER_SERVICE_URL: http://user-service:8081
     depends_on:
-      rabbitmq:
-        condition: service_healthy
-      eureka-server:
-        condition: service_healthy
+      - rabbitmq
+      - eureka-server
 
   event-service:
     build:
@@ -180,14 +173,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://item_db:5432/item_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
-      elasticsearch:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      item_db:
-        condition: service_healthy
-      eureka-server:
-        condition: service_healthy
+      - elasticsearch
+      - rabbitmq
+      - item_db
+      - eureka-server
 
   borrow-service:
     build:
@@ -250,10 +239,8 @@ services:
       SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
-      elasticsearch:
-        condition: service_healthy
-      eureka-server:
-        condition: service_healthy
+      - elasticsearch
+      - eureka-server
 
   rabbitmq:
     image: rabbitmq:3.11-management

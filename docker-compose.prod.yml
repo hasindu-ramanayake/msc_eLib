@@ -57,10 +57,10 @@ services:
     volumes:
       - es_data:/usr/share/elasticsearch/data
     healthcheck:
-      test: [ "CMD-SHELL", "curl -s http://138.2.144.234:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/ || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
 
   rabbitmq:
     image: rabbitmq:3.11-management
@@ -77,7 +77,7 @@ services:
     ports:
       - "8761:8761"
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://138.2.144.234:8761/actuator/health || exit 1" ]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1" ]
 
   # Microservices
   user-service:
@@ -88,8 +88,8 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
-      user_db: { condition: service_healthy }
-      eureka-server: { condition: service_healthy }
+      - user_db
+      - eureka-server
 
   apigateway:
     image: ${DOCKER_ORG:-myrepo}/elib-api-gateway:latest
@@ -108,7 +108,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
-      rabbitmq: { condition: service_healthy }
+      - rabbitmq
 
   event-service:
     image: ${DOCKER_ORG:-myrepo}/elib-event-service:latest
@@ -125,7 +125,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://item_db:5432/item_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
-      item_db: { condition: service_healthy }
+      - item_db
 
   borrow-service:
     image: ${DOCKER_ORG:-myrepo}/elib-borrowservice:latest
@@ -142,7 +142,8 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
-      borrow_db: { condition: service_healthy }
+      - borrow_db
+      - eureka-server
 
   search-service:
     image: ${DOCKER_ORG:-myrepo}/elib-search-service:latest
@@ -151,7 +152,8 @@ services:
       SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
-      elasticsearch: { condition: service_healthy }
+      - elasticsearch
+      - eureka-server
 
   frontend:
     image: ${DOCKER_ORG:-myrepo}/elib-frontend:latest
